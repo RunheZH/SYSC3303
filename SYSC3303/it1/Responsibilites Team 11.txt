@@ -1,0 +1,35 @@
+SYSC 3303 Summer 2017 Project Peer Assessment							
+
+
+Team #: 11
+
+
+Student Names and percent of work done by each student in your opinion (should add up to 100%):	
+
+1	Lau,James		20%					
+2	Liu,Yan			20%			
+3	Mohammed,Myles		20%					
+4	Rachid,Osama		15%
+5	Yang,Hansong  		25%
+
+							
+									
+Were there any students who contributed significantly more than
+their fair share of the project work?  
+If so, who and what was the nature of the additional contribution?								
+
+Everyone discuss and paticipate in the project.
+								
+											
+								
+Were there any students who contributed significantly less than 
+their fair share of the project work?  
+If so, who and how was their contribution lacking?								
+								
+Everyone do the enough job.								
+								
+								
+Other Comments:
+For breakdown of responsibilities of each team member,Yan does the all the UML and UCM diagrams, readme.txt, 
+peer form writing, and check all the codes errors. James does the client and listener class, and Hansong does rest of the codes. 
+Myles and Osama help other team members in coding and search some helpful files.
