@@ -24,7 +24,6 @@ public class RequestParser {
 	/*
 	 *	Method to parse request 
 	 * */
-
 	private void split(byte[] data) {
 		for(int i = 0; i < length; i++) {
 			if(data[i] == 0) {
