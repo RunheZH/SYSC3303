@@ -71,7 +71,7 @@ public class FileHandler {
 					}
 					fileBuffer = tempBuffer;
 				}
-	    }		
+			}		
 		}catch (IOException e) {
 			e.printStackTrace();
 		}	
@@ -99,7 +99,7 @@ public class FileHandler {
 			os = new FileOutputStream(fileToWrite);
 		}catch (IOException e) {
 			e.printStackTrace();
-    }
+		}
 	}
 	
 	/*
