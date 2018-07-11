@@ -1,17 +1,18 @@
 /*
  * RequestParser class to break down the request received
  * */
-
+ 
 package Server;
 
 import java.util.ArrayList;
 
 public class RequestParser {
-	
+  
 	private int type, length, blockNum;
 	private byte[] fileData;
 	private String filename;
 	private ArrayList<Integer> positionOf0;  // Record the position of byte 0
+
 	public RequestParser() {}
 	
 	public void parseRequest(byte[] data) {
@@ -23,6 +24,7 @@ public class RequestParser {
 	/*
 	 *	Method to parse request 
 	 * */
+
 	private void split(byte[] data) {
 		for(int i = 0; i < length; i++) {
 			if(data[i] == 0) {
@@ -49,12 +51,7 @@ public class RequestParser {
 	private String parseFilename(byte[] data, int endFlag) {
 		return new String(data, 2, endFlag);
 	}
-	
-	/*
-	 *	Method to parse block number
-	 *	In: request
-	 *	Out: block number
-	 * */
+
 	private int parseBlockNum(byte[] data) {
 		int left = data[2];
 		int right = data[3];

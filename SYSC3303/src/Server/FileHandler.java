@@ -24,7 +24,7 @@ public class FileHandler {
 	 * In: file path or name
 	 * */
 	public byte[] readFile(String file) throws IOException {
-		
+
 		if(!file.contains("\\")) {
 			file = path + "\\" + file;
 		}
@@ -35,7 +35,6 @@ public class FileHandler {
 			fs = new FileInputStream(file);
 			fileBuffer = new byte[512];
             if ((count = fs.read(fileBuffer)) != -1){
-            	
             	//	If reached the end of file, size will be reduced
             	if(count < fileBuffer.length) {
             		byte[] tempBuffer = new byte[count];
@@ -48,7 +47,7 @@ public class FileHandler {
         }catch (IOException e) {
         	e.printStackTrace();
         }
-		
+    
 		// return data loaded
 		return fileBuffer;
 	}
@@ -58,13 +57,12 @@ public class FileHandler {
 	 * In: file path or name
 	 * */
 	public byte[] readFile() {
-		
+   
 		int count;
 		fileBuffer = new byte[512];
 		
 		try {
-			if ((count = fs.read(fileBuffer)) != -1){
-				
+			if ((count = fs.read(fileBuffer)) != -1){		
 				//	If reached the end of file, size will be reduced
 				if(count < fileBuffer.length) {
 					byte[] tempBuffer = new byte[count];
@@ -73,11 +71,11 @@ public class FileHandler {
 					}
 					fileBuffer = tempBuffer;
 				}
-	         }		
+	    }		
 		}catch (IOException e) {
 			e.printStackTrace();
 		}	
-		
+    
 		// return data loaded
 		return fileBuffer;
 	}
@@ -87,7 +85,7 @@ public class FileHandler {
 	 * In: file path or name
 	 * */
 	public void prepareWrite(String file) {
-		
+
 		if(!file.contains("\\")) {
 			file = path + "\\" + file;
 		}
@@ -101,7 +99,7 @@ public class FileHandler {
 			os = new FileOutputStream(fileToWrite);
 		}catch (IOException e) {
 			e.printStackTrace();
-        }
+    }
 	}
 	
 	/*
@@ -116,8 +114,7 @@ public class FileHandler {
 			os.close();
 		}
 	}
-	
-	
+		
 	/*
 	 * Method to prepare write data to a file
 	 * In: file data
@@ -126,5 +123,4 @@ public class FileHandler {
 		os.write(fileData);
 		os.flush();
 	}
-	
 }

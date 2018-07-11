@@ -13,6 +13,7 @@ public class Controller {
 	private DatagramPacket receivePacket, sendPacket;
 	private FileHandler fileHandler;	// holds information of operating file
 	private RequestParser RP;			// holds information of current request
+
 	private int blockNum;
 	
 	public Controller(int port) {		
@@ -31,6 +32,7 @@ public class Controller {
 	public void listenAndHandle() throws IOException {
 		
 		//	Construct a DatagramPacket for receiving packets
+
 		byte data[] = new byte[100];
 		receivePacket = new DatagramPacket(data, data.length);
 		try {
@@ -44,7 +46,7 @@ public class Controller {
 		}
 		
 		displayReceived(receivePacket);
-		
+	
 		//	Parse the request and handle it 
 		RP.parseRequest(data);
 		switch (RP.getType()) {
@@ -63,10 +65,7 @@ public class Controller {
 		}    
 	}
 	
-	/*
-	 * Method to handle read request
-	 * In: filename to read
-	 * */
+
 	public void handleRead(String filename) throws IOException {
 		
 		System.out.print("File Read Requst Received.");
@@ -79,7 +78,7 @@ public class Controller {
 		SendDataPacket(fileHandler.readFile(filename), blockNum);
 		blockNum++;
 	}
-	
+
 	/*
 	 * Method to handle write request
 	 * In: filename to write
@@ -97,6 +96,7 @@ public class Controller {
 		blockNum++;
 	}
 	
+
 	/*
 	 * Method to handle data request
 	 * In: block number and data
@@ -136,22 +136,22 @@ public class Controller {
 	 * 	In: data to send, block number
 	 * */
 	public void SendDataPacket(byte[] data, int blockNum) throws IOException {
-		
+	
 		//	Create byte array and set head bytes
 		byte[] sendData = new byte[4 + data.length];
 		sendData[0] = 0;
 		sendData[1] = 3;
 		sendData[2] = (byte)(blockNum / 256);
 		sendData[3] = (byte)(blockNum % 256);
-		
+
 		//	Save file data to data packet
 		for(int i = 0; i < data.length; i++) {
 			sendData[4 + i] = data[i];
 		}
 		sendPacket = new DatagramPacket(sendData, sendData.length,
 				receivePacket.getAddress(), receivePacket.getPort());
-		
-		//	Send packet
+
+    //	Send packet
 		try {
 			displaySend(sendPacket);
 			sendReceiveSocket.send(sendPacket);
@@ -159,18 +159,17 @@ public class Controller {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		
+	
 		//	Close fileHandler if reached the end
 		if(data.length < 512) {
 			fileHandler.close();
 		}
 	}
 	
-	
 	public void handleERROR() {
 		System.out.print("ERROR packet Received.");
 	}
-	
+
 	/*
 	*	Method to terminate program
 	*/
