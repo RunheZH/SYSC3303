@@ -6,43 +6,16 @@ import java.util.Random;
 
 public class ErrorSController{
 	
-	private DatagramSocket receiveSocket;
-	private DatagramPacket receivePacket;
+	//private DatagramSocket receiveSocket;
+	//private DatagramPacket receivePacket;
 	
-	private int errorSPort = 23;
+	//private int errorSPort = 2000; //should be 23
 	
-	private int threadCounter = 0;
+	//private int threadCounter = 0;
 	
-	public ErrorSController(){
-		try {
-			
-			receiveSocket = new DatagramSocket(errorSPort);
-			
-		}catch(SocketException se) {
-			
-			se.printStackTrace();
-		    System.exit(1);
-		    
-		}
-	}
+	public ErrorSController(){}
 	
 	public void distribute(int errorCode) {
-
-		
-		try {
-			
-			receiveSocket.receive(receivePacket);
-			
-		} catch (IOException e) {
-			
-			System.out.print("IO Exception: likely:");
-			System.out.println("Receive Socket Timed Out.\n" + e);
-			
-			e.printStackTrace();
-			receiveSocket.close();
-			System.exit(1);
-		
-		}
 		
 		switch(errorCode) {
 		
@@ -72,7 +45,7 @@ public class ErrorSController{
 				break;
 			case 8:
 				System.out.println("error code: 8 [Normal]");
-				ESThreadNormal normal = new ESThreadNormal(threadCounter, receivePacket);
+				ESThreadNormal normal = new ESThreadNormal();
 				break;
 			case 9:
 				System.out.println("error code: 9");
@@ -82,7 +55,7 @@ public class ErrorSController{
 				System.out.println("Something is wrong...");
 			
 		}
-		threadCounter++;
+		//threadCounter++;
 		
 	}
 

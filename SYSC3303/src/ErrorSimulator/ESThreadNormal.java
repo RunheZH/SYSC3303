@@ -9,37 +9,32 @@ public class ESThreadNormal implements Runnable{
 	
 	private DatagramPacket receivePacket, sendPacket;
 	
-	private int tID;
+	private int currPort = 2000; // should be 23
+	
 	private int clientPort;
+	private int counter = 0;
 	//private InetAddress clientAddress;
 	
 	
-	public ESThreadNormal(int tID, DatagramPacket clientPacket) {
+	public ESThreadNormal() {
 		
-		this.tID = tID;
-		this.receivePacket = clientPacket;
-		this.clientPort = receivePacket.getPort();
-		//this.clientAddress = receivePacket.getAddress();
-		
-		Thread t = new Thread(this, Integer.toString(this.tID));
+		Thread t = new Thread(this, Integer.toString(counter++));
 		
 		t.start();
 	}
 	
 	public void run() {
 		
-		
 		try {
 			
-			sendReceiveSocket = new DatagramSocket(tID);
+			sendReceiveSocket = new DatagramSocket(currPort);
 			
 		}catch(SocketException se) {
 			
 			se.printStackTrace();
 		    System.exit(1);
 		}
-		
-		receiveFromServer();
+
 		
 		while(true) { // need to change the stop condition
 			receiveFromClient();
@@ -49,7 +44,7 @@ public class ESThreadNormal implements Runnable{
 	
 	private void receiveFromClient() {
 		
-		
+		System.out.println("3");
 		byte data[] = new byte[1024];
 		
 		receivePacket = new DatagramPacket(data, data.length);
@@ -78,6 +73,8 @@ public class ESThreadNormal implements Runnable{
 		System.out.println("Error Simulator: Packet received from client:");
 	    System.out.println("From host: " + receivePacket.getAddress());
 	    System.out.println("host port: " + receivePacket.getPort());
+	    
+	    clientPort = receivePacket.getPort();
 
 	    int len = receivePacket.getLength();
 	    System.out.println("Length: " + len);
@@ -88,7 +85,7 @@ public class ESThreadNormal implements Runnable{
 	    
 	    try {
 	    	
-	    	sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), 69); 
+	    	sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), clientPort);  //should be 69
 		    sendReceiveSocket.send(sendPacket);
 		    
 	    }catch(IOException e) {
@@ -182,27 +179,27 @@ public class ESThreadNormal implements Runnable{
 		    if(rp.getType()==1) {
 
 		    	System.out.println("***Parse Read Request***");
-		    	System.out.print("Containing: " );
-		    	System.out.print("filename: " + rp.getFilename());
+		    	System.out.println("Containing: " );
+		    	System.out.println("filename: " + rp.getFilename());
 
 		    }else if(rp.getType()==2) {
 
 		    	System.out.println("***Parse Write Request***");
-		    	System.out.print("Containing: " );
+		    	System.out.println("Containing: " );
 		    	System.out.println("filename: " + rp.getFilename());
 
 		    }else if(rp.getType()==3) {
 
 		    	System.out.println("***Parse Data***");
-		    	System.out.print("Containing: ");
+		    	System.out.println("Containing: ");
 		    	System.out.println(rp.getBlockNum());
 		    	System.out.println(rp.getFileData().toString());
 
 		    }else if(rp.getType()==4) {
 
 		    	System.out.println("***Parse ACK***");
-		    	System.out.print("Containing: ");
-		    	System.out.print(rp.getBlockNum());
+		    	System.out.println("Containing: ");
+		    	System.out.println(rp.getBlockNum());
 
 		    }
 

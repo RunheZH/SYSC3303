@@ -1,7 +1,7 @@
 package ErrorSimulator;
 
 import java.net.*;
-
+import java.io.*;
 import java.util.*;
 
 //UI
@@ -14,6 +14,7 @@ public class ErrorSimulator{
 	private ErrorSController controller;
 	
 	public ErrorSimulator() {
+
 		error = new ErrorType();   
 		controller = new ErrorSController();
 		
@@ -32,7 +33,9 @@ public class ErrorSimulator{
 			userOption = sc.nextInt();
 			
 			if(userOption >= 0 && userOption <= 9) {
+				System.out.println("here!");
 				this.controller.distribute(userOption);
+				System.out.println("or here!");
 				valid = true;
 			}
 			else valid = false;
@@ -53,12 +56,11 @@ public class ErrorSimulator{
 	
 	public static void main(String args[]) throws IOException{
 		
-		
 		ErrorSimulator i = new ErrorSimulator();
 		
-		while(true) {		
+		//while(true) {		
 			i.ErrorMenu();
-		} 
+		//} 
 	}
 
 }
