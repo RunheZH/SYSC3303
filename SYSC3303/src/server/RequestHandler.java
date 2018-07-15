@@ -4,7 +4,7 @@
  * RequestHandler to handle each request
  * */
 
-package Server;
+package server;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -21,7 +21,8 @@ public class RequestHandler extends Thread{
 	/*
 	 * Construct handler with packet information
 	 * */
-	public RequestHandler(DatagramPacket receivePacket, ClientManager clientManager, DatagramSocket socket) {
+	public RequestHandler(DatagramPacket receivePacket, ClientManager clientManager, DatagramSocket socket) throws IOException {
+		
 		myPacket = receivePacket;
 		sendSocket = socket;
 		myClientManager = clientManager;
@@ -67,7 +68,8 @@ public class RequestHandler extends Thread{
 			//	Create fileHandler and save file information to it
 			Client newClient = new Client(myPacket, 1, new FileHandler());
 			myClientManager.addClient(newClient);
-			SendDataPacket(newClient.getFileHandler().readFile(filename), newClient.getBlockNum());
+			byte[] filedata = newClient.getFileHandler().readFile(filename);
+			SendDataPacket(filedata, newClient.getBlockNum());
 		}else {
 			//	Error
 			//	Current client does not finish transfer yet
@@ -116,10 +118,12 @@ public class RequestHandler extends Thread{
 				}
 				SendDataPacket(new byte[0], c.getBlockNum() - 1);
 			}else{
+				System.out.println("ERROR: Wrong package received.");
 				//	Error
-				//	Wrong Data packet received
+				//	Wrong ACK packet received
 			}
 		}else {
+			System.out.println("ERROR: Unknown TID.");
 			//	Error
 			//	Unknown TID
 		}
@@ -137,10 +141,12 @@ public class RequestHandler extends Thread{
 				c.incrementBlockNum();
 				SendDataPacket(c.getFileHandler().readFile(), c.getBlockNum());
 			}else{
+				System.out.println("ERROR: Wrong package received.");
 				//	Error
 				//	Wrong ACK packet received
 			}
 		}else {
+			System.out.println("ERROR: Unknown TID.");
 			//	Error
 			//	Unknown TID
 		}

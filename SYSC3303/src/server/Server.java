@@ -4,7 +4,7 @@
  * Server entry point
  * */
 
-package Server;
+package server;
 
 import java.io.*;
 import java.util.Scanner;
@@ -47,6 +47,7 @@ public class Server{
 	
 	//	Server starts here
 	public static void main(String[] args) throws IOException{
+		
 		Server server = new Server();
 		server.start();
 	}

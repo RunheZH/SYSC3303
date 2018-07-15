@@ -2,7 +2,7 @@
  * Client class to store information of a valid connection
  * */
 
-package Server;
+package server;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -10,9 +10,9 @@ import java.net.InetAddress;
 
 public class Client {
 	
-	InetAddress myAddress;
-	int myPort, myBlockNum;
-	FileHandler myFH;
+	private InetAddress myAddress;
+	private int myPort, myBlockNum;
+	private FileHandler myFH;
 	
 	//	Construct with connect information
 	public Client(DatagramPacket receivePacket, int blockNum, FileHandler FH) {

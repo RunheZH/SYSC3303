@@ -2,7 +2,7 @@
  * ClientManager class to manage all valid connections
  * */
 
-package Server;
+package server;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -21,7 +21,7 @@ public class ClientManager {
 	 * In: new client
 	 * Out: new size
 	 * */
-	public synchronized int addClient(Client c) {
+	public int addClient(Client c) {
 		myClients.add(c);
 		return myClients.size();
 	}
@@ -30,7 +30,7 @@ public class ClientManager {
 	 * Synchronized method to remove a client according to a packet
 	 * In: received packet
 	 * */
-	public synchronized void removeClient(DatagramPacket packet) throws IOException {
+	public void removeClient(DatagramPacket packet) throws IOException {
 		Client c = getClientByPacket(packet);
 		if(c != null) {
 			c.remove();
@@ -51,7 +51,7 @@ public class ClientManager {
 	 * In: received packet
 	 * Out: Client
 	 * */
-	public synchronized Client getClientByPacket(DatagramPacket packet) {
+	public Client getClientByPacket(DatagramPacket packet) {
 		Client result = null;
 		for(Client c : myClients) {
 			if(c.getAddress().equals(packet.getAddress())) {

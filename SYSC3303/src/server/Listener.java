@@ -2,7 +2,7 @@
  * Controller class to listen and handle request from client
  * */
 
-package Server;
+package server;
 
 import java.net.*;
 import java.io.*;
@@ -28,6 +28,7 @@ public class Listener extends Thread{
 	 * New thread(listener) starts here
 	 * */
 	public void run() {
+		
 		while(running) {
 			try {
 				listenAndHandle();
@@ -48,7 +49,7 @@ public class Listener extends Thread{
 		
 		//	Wait for connections
 		try {
-			System.out.println("\nServer : Waiting for request...");
+			System.out.println("Listener : Waiting for request...");
 			sendReceiveSocket.receive(receivePacket);
 		} catch (IOException e) {
 			if(e.getMessage().equals("socket closed")) {
@@ -65,7 +66,7 @@ public class Listener extends Thread{
 		//	Display information
 		//	Can be achieved by a new UI class
 		displayReceived(receivePacket);
-
+		
 		//	Parse the request and handle it with a new thread
 		RequestHandler RH = new RequestHandler(receivePacket, clientManager, sendReceiveSocket);
 		RH.start(); 
@@ -76,8 +77,8 @@ public class Listener extends Thread{
 	*/
 	public void stopRunning() {
 		System.out.println("Closing listener...");
-		sendReceiveSocket.close();
 		running = false;
+		sendReceiveSocket.close();	
 	}
 	
 	/*
@@ -92,14 +93,18 @@ public class Listener extends Thread{
 	*	In: Received packet
 	*/
 	public void displayReceived(DatagramPacket receivePacket) {
+		
 		System.out.println("Server: Packet received:");
 		System.out.println("From host: " + receivePacket.getAddress());
 		System.out.println("Host port: " + receivePacket.getPort());
 		int len = receivePacket.getLength();
 		System.out.println("Length: " + len);
+		/*
+		System.out.println("Length: " + len);
 		for(int i = 0; i < 4; i ++){
 			System.out.println(receivePacket.getData()[i]);
 		}
+		*/
 	}
 	
 	/*
