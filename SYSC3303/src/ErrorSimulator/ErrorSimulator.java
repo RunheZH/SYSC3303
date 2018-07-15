@@ -18,7 +18,7 @@ public class ErrorSimulator{
 	private ErrorSController controller;
 	
 	public ErrorSimulator() {
-		error = new ErrorType();
+		error = new ErrorType();   
 		controller = new ErrorSController();
 		
 	}
