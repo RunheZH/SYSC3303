@@ -16,7 +16,10 @@ public class ESThreadNormal implements Runnable{
 	//private InetAddress clientAddress;
 	
 	
-	public ESThreadNormal() {
+	public ESThreadNormal(DatagramSocket socket, DatagramPacket received) {
+		
+		this.receivePacket = received;
+		this.sendReceiveSocket = socket;
 		
 		Thread t = new Thread(this, Integer.toString(counter++));
 		
@@ -25,34 +28,19 @@ public class ESThreadNormal implements Runnable{
 	
 	public void run() {
 		
-		try {
-			
-			sendReceiveSocket = new DatagramSocket(currPort);
-			
-		}catch(SocketException se) {
-			
-			se.printStackTrace();
-		    System.exit(1);
-		}
-
-		
 		while(true) { // need to change the stop condition
 			receiveFromClient();
 			receiveFromServer();
 		}
+		
 	}
 	
 	private void receiveFromClient() {
 		
-		System.out.println("3");
-		byte data[] = new byte[1024];
-		
-		receivePacket = new DatagramPacket(data, data.length);
-		
-		System.out.println("Error Simulator: Waiting for Packet from client.\n");
-
-		
 		// Block until a datagram packet is received from receiveSocket.
+		
+		if(receivePacket.getData() == null) {
+			System.out.println("Error Simulator: Waiting for Packet from client.\n");
 		
 		try {
 
@@ -67,6 +55,7 @@ public class ESThreadNormal implements Runnable{
 		       sendReceiveSocket.close();
 		       System.exit(1);
 		    }
+		}
 		
 		// Process the received datagram.
 		
@@ -80,8 +69,8 @@ public class ESThreadNormal implements Runnable{
 	    System.out.println("Length: " + len);
 	    printMessage(receivePacket.getData(), len);
 		
-	    
 	    // sendPacket, send to server
+		
 	    
 	    try {
 	    	

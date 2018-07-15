@@ -33,10 +33,10 @@ public class ErrorSimulator{
 			userOption = sc.nextInt();
 			
 			if(userOption >= 0 && userOption <= 9) {
-				System.out.println("here!");
+
 				this.controller.distribute(userOption);
-				System.out.println("or here!");
 				valid = true;
+				
 			}
 			else valid = false;
 			
