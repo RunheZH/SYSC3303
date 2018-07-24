@@ -11,12 +11,10 @@ public class Listener extends Thread{
 	
 	private DatagramSocket sendReceiveSocket;
 	private DatagramPacket receivePacket;
-	private ClientManager clientManager;	// holds information of all clients	
 	private boolean running = true;		// turn to false if needs to close listener 
 	
 	public Listener(int port) {		
 		try{
-			clientManager = new ClientManager();  // manage clients operations
 			sendReceiveSocket = new DatagramSocket(port);
 		}catch (SocketException se){
 			se.printStackTrace();
@@ -65,11 +63,13 @@ public class Listener extends Thread{
 		
 		//	Display information
 		//	Can be achieved by a new UI class
-		displayReceived(receivePacket);
-		
-		//	Parse the request and handle it with a new thread
-		RequestHandler RH = new RequestHandler(receivePacket, clientManager, sendReceiveSocket);
-		RH.start(); 
+		if(receivePacket.getPort() != -1){
+			displayReceived(receivePacket);
+			
+			//	Parse the request and handle it with a new thread
+			RequestHandler RH = new RequestHandler(receivePacket);
+			RH.start(); 
+		}	
 	}
 	
 	/*
@@ -79,13 +79,6 @@ public class Listener extends Thread{
 		System.out.println("Closing listener...");
 		running = false;
 		sendReceiveSocket.close();	
-	}
-	
-	/*
-	*	Method to terminate program
-	*/
-	public void quit() {
-		sendReceiveSocket.close();
 	}
 	
 	/*
