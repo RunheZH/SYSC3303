@@ -17,7 +17,7 @@ public class ESThread implements Runnable{
 	private int serverPort = 69;
 	
 	
-	public ESThread(int errorType, int errorChoice, byte errorPacket, DatagramPacket received) {
+	public ESThread(int errorType, int errorChoice, byte errorPacket, DatagramPacket received, DatagramSocket receiveAndSendSocket) {
 		
 		byte[] receivedData = new byte[1024];
 //		byte[] sendData = new byte[1024];
@@ -31,7 +31,7 @@ public class ESThread implements Runnable{
 		this.receivedPacket = received;
 		this.clientAddress = received.getAddress();
 		this.clientPort = received.getPort();
-		
+		this.receiveAndSendSocket = receiveAndSendSocket;
 		//temp
 		this.serverAddress = received.getAddress();
 		

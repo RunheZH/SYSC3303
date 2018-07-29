@@ -10,9 +10,12 @@ public class ErrorSimulator {
 	private int ErrorCodeChoice;
 	private int transError;
 	private boolean status = false;
+	private ESListener listener;
 	
 	public ErrorSimulator() {
 		scan = new Scanner(System.in);
+		listener = new ESListener();
+		System.out.println("hello world");
 	}
 
 	
@@ -22,23 +25,19 @@ public class ErrorSimulator {
 		System.out.println("----------Error Selection----------");
 		System.out.println("    0. Normal Operation");
 		System.out.println("    1. Transmission Error");
-		System.out.println("    2. Error Codes (1-7)");
-		System.out.println(">>>>>>>> pc quit to exit this program");
+		System.out.println("    2. Error Codes (1-6)");
+		System.out.println(">>>>>>>> input quit to exit this program");
 		
 		ec = scan.next();
 		
-		if(ec == "0") {
-			ESListener listener = new ESListener();
+		if(ec.equals("0")) {
 			listener.handleNormal();
-			
-		}else if (ec == "1") {
+		}else if (ec.equals("1")) {
 			transmissionError();
-			
-		}else if (ec == "2") {
-			
-		}else if (ec == "quit") {
-			System.exit(1);
-			
+		}else if (ec.equals("2")) {
+			System.out.println("Error Code");
+		}else if (ec.equals("quit")) {
+			listener.quit();
 		}
 		
 	}
@@ -49,30 +48,34 @@ public class ErrorSimulator {
 		System.out.println("    2. Delay a packet");
 		System.out.println("    3. Duplicate a packet");
 		System.out.println("    4. Back to Error main menu");
-		System.out.println(">>>>>>>> pc quit to exit this program");
+		System.out.println(">>>>>>>> input quit to exit this program");
 		
 		tc = scan.next();
 		
-		if(tc == "1") {
-			transError = 1;
-			packetSelection();
-			
-		}else if(tc == "2") {
-			transError = 2;
-			packetSelection();
-			
-		}else if(tc == "3") {
-			transError = 3;
-			packetSelection();
-			
-		}else if(tc == "4") {
-			errorMainMenu();
-			
-		}else if(tc == "quit") {
-			System.exit(1);
-			
+		switch (tc) {
+			case "1": 
+				transError = 1;
+				packetSelection(); 
+				break;
+			case "2": 
+				transError = 2;
+				packetSelection(); 
+				break;
+			case "3": 
+				transError = 3;
+				packetSelection(); 
+				break;
+			case "4": 
+				transError = 4;
+				errorMainMenu(); 
+				break;
+			case "quit": 
+				listener.quit(); 
+				break;
+			default: 
+				System.out.println("Oops, something is wrong"); 
+				break;
 		}
-	 
 	}
 	
 	public void packetSelection() {
@@ -83,43 +86,42 @@ public class ErrorSimulator {
 		System.out.println("    4. ACK");
 		System.out.println("    5. ERROR" );
 		System.out.println("    6. Back to Transmission Menu");
-		System.out.println(">>>>>>>> pc quit to exit this program");
+		System.out.println(">>>>>>>> input quit to exit this program");
 		
 		pc = scan.next();
 		
-		if(pc == "1") {
-			packetChoice = 1;
-			ESListener listener = new ESListener();
-			listener.handleNetworkError(transError, packetChoice);
-			
-		}else if(pc == "2") {
-			packetChoice = 2;
-			ESListener listener = new ESListener();
-			listener.handleNetworkError(transError, packetChoice);
-					;
-		}else if(pc == "3") {
-			packetChoice = 3;
-			ESListener listener = new ESListener();
-			listener.handleNetworkError(transError, packetChoice);
-			
-		}else if(pc == "4") {
-			packetChoice = 4;
-			ESListener listener = new ESListener();
-			listener.handleNetworkError(transError, packetChoice);
-			
-		}else if(pc == "5") {
-			packetChoice = 5;
-			ESListener listener = new ESListener();
-			listener.handleNetworkError(transError, packetChoice);
-			
-		}else if(pc == "6") {
-			transmissionError();
-			
-		}else if(pc == "quit") {
-			System.exit(1);
-		
+		switch (pc) {
+			case "1": 
+				packetChoice = 1;
+				listener.handleNetworkError(transError, packetChoice);
+				break;
+			case "2": 
+				packetChoice = 2;
+				listener.handleNetworkError(transError, packetChoice);
+				break;
+			case "3": 
+				packetChoice = 3;
+				listener.handleNetworkError(transError, packetChoice);
+				break;
+			case "4": 
+				packetChoice = 4;
+				listener.handleNetworkError(transError, packetChoice);
+				break;
+			case "5": 
+				packetChoice = 5;
+				listener.handleNetworkError(transError, packetChoice);
+				break;
+			case "6": 
+				packetChoice = 6;
+				listener.handleNetworkError(transError, packetChoice);
+				break;
+			case "quit": 
+				listener.quit(); 
+				break;
+			default: 
+				System.out.println("Oops, something is wrong"); 
+				break;
 		}
-  
 	}
 	
 	public byte getPacketChoice() {
@@ -131,11 +133,10 @@ public class ErrorSimulator {
 	}
 	
 	public static void main(String[] args) {
+		
 		ErrorSimulator es = new ErrorSimulator();
 		es.errorMainMenu();
-		
-		
-		
+
 	}
 
 }

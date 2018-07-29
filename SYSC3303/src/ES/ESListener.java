@@ -9,7 +9,9 @@ public class ESListener {
 	private DatagramSocket receiveSendSocket;
 	
 	public ESListener() {
+		
 		try {
+			System.out.println("created a socket (port 23)");
 			receiveSendSocket = new DatagramSocket(23);
 		} catch (SocketException e) {
 			e.printStackTrace();
@@ -19,6 +21,8 @@ public class ESListener {
 	}
 	
 	public void handleNormal() {
+		
+		System.out.println("I am panicing");
 		
 		byte[] data = new byte[1024];
 		
@@ -34,7 +38,7 @@ public class ESListener {
 			System.exit(1);
 		}
 		
-		ESThread normalThread = new ESThread(0, 0, (byte)0, receivedPacket);
+		ESThread normalThread = new ESThread(0, 0, (byte)0, receivedPacket, receiveSendSocket);
 		
 	}
 	
@@ -54,7 +58,7 @@ public class ESListener {
 			System.exit(1);
 		}
 		
-		ESThread networkErrThread = new ESThread(1, transError, choice, receivedPacket);
+		ESThread networkErrThread = new ESThread(1, transError, choice, receivedPacket, receiveSendSocket);
 		
 	}
 	
@@ -74,8 +78,13 @@ public class ESListener {
 			System.exit(1);
 		}
 		
-		ESThread errCodeThread = new ESThread(2, errorCode, choice, receivedPacket);
+		ESThread errCodeThread = new ESThread(2, errorCode, choice, receivedPacket, receiveSendSocket);
 		
+	}
+	
+	public void quit() {
+		System.out.println("Quiting Error Simulator...");
+		receiveSendSocket.close();
 	}
 	
 }
