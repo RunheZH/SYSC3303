@@ -48,12 +48,9 @@ public class ESThread implements Runnable{
 //			e.printStackTrace();
 //			System.exit(1);
 //		}
-		while(true) {
-			if(errorType == 0) normal();
-			else if(errorType == 1) networkError();
-			else if (errorType == 2) errorCode();
-		}
-		
+		if(errorType == 0) normal();
+		else if(errorType == 1) networkError();
+		else if (errorType == 2) errorCode();
 	}
 	
 	public void normal() {
@@ -67,6 +64,8 @@ public class ESThread implements Runnable{
 				e.printStackTrace();
 				System.exit(1);
 			}
+			
+			receivePacket();
 		}
 		else {
 			sendPacket = new DatagramPacket(receivedPacket.getData(), receivedPacket.getLength(), this.serverAddress, serverPort);
@@ -76,6 +75,8 @@ public class ESThread implements Runnable{
 				e.printStackTrace();
 				System.exit(1);
 			}
+			
+			receivePacket();
 		}
 		
 	}
@@ -118,6 +119,16 @@ public class ESThread implements Runnable{
 			case 4: System.out.println("Modify ACK"); break;
 			case 5: System.out.println("Modify ERROR"); break;
 			default: System.out.println("Oops, something is wrong"); break;
+		}
+	}
+	
+	public void receivePacket() {
+		try {
+			System.out.println("Receving a packet...");
+			receiveAndSendSocket.receive(receivedPacket);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 
