@@ -1,5 +1,6 @@
 package ES;
 
+import java.io.IOException;
 import java.net.*;
 
 public class ESThread implements Runnable{
@@ -10,20 +11,29 @@ public class ESThread implements Runnable{
 	private int errorType;
 	private int errorChoice;
 	private byte errorPacket;
+	private InetAddress clientAddress;
+	private int clientPort;
+	private InetAddress serverAddress;
+	private int serverPort = 69;
 	
 	
 	public ESThread(int errorType, int errorChoice, byte errorPacket, DatagramPacket received) {
 		
 		byte[] receivedData = new byte[1024];
-		byte[] sendData = new byte[1024];
+//		byte[] sendData = new byte[1024];
 		
 		receivedPacket = new DatagramPacket(receivedData, receivedData.length);
-		sendPacket = new DatagramPacket(sendData, sendData.length);
+//		sendPacket = new DatagramPacket(sendData, sendData.length);
 		
 		this.errorType = errorType;
 		this.errorChoice = errorChoice;
 		this.errorPacket = errorPacket;
 		this.receivedPacket = received;
+		this.clientAddress = received.getAddress();
+		this.clientPort = received.getPort();
+		
+		//temp
+		this.serverAddress = received.getAddress();
 		
 		Thread t = new Thread();
 		t.start();
@@ -32,22 +42,41 @@ public class ESThread implements Runnable{
 	public void run() {
 		System.out.println("Thread is running...");
 		
-		try {
-			receiveAndSendSocket = new DatagramSocket();
-		} catch (SocketException e) {
-			e.printStackTrace();
-			System.exit(1);
+//		try {
+//			receiveAndSendSocket = new DatagramSocket();
+//		} catch (SocketException e) {
+//			e.printStackTrace();
+//			System.exit(1);
+//		}
+		while(true) {
+			if(errorType == 0) normal();
+			else if(errorType == 1) networkError();
+			else if (errorType == 2) errorCode();
 		}
-		
-		if(errorType == 0) normal();
-		else if(errorType == 1) networkError();
-		else if (errorType == 2) errorCode();
 		
 	}
 	
 	public void normal() {
 		
 		System.out.println("Normal operation...");
+		if(receivedPacket.getPort() == serverPort) {
+			sendPacket = new DatagramPacket(receivedPacket.getData(), receivedPacket.getLength(), this.clientAddress, this.clientPort);
+			try {
+				receiveAndSendSocket.send(sendPacket);
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+		}
+		else {
+			sendPacket = new DatagramPacket(receivedPacket.getData(), receivedPacket.getLength(), this.serverAddress, serverPort);
+			try {
+				receiveAndSendSocket.send(sendPacket);
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+		}
 		
 	}
 	
