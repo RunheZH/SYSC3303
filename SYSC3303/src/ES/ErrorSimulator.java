@@ -15,10 +15,9 @@ public class ErrorSimulator {
 	public ErrorSimulator() {
 		scan = new Scanner(System.in);
 		listener = new ESListener();
-		System.out.println("hello world");
 	}
 
-	
+	 
 	
 	public void errorMainMenu() {
 		

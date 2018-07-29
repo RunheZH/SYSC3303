@@ -6,7 +6,7 @@ import java.net.*;
 public class ESThread extends Thread{
 	
 	private DatagramPacket receivedPacket, sendPacket;
-	private DatagramSocket receiveAndSendSocket;
+	private DatagramSocket receiveSocket, receiveSendSocket;
 	
 	private int errorType;
 	private int errorChoice;
@@ -17,7 +17,7 @@ public class ESThread extends Thread{
 	private int serverPort = 69;
 	
 	
-	public ESThread(int errorType, int errorChoice, byte errorPacket, DatagramPacket received, DatagramSocket receiveAndSendSocket) {
+	public ESThread(int errorType, int errorChoice, byte errorPacket, DatagramPacket received, DatagramSocket receiveSocket) {
 		
 		byte[] receivedData = new byte[1024];
 //		byte[] sendData = new byte[1024];
@@ -29,11 +29,15 @@ public class ESThread extends Thread{
 		this.errorChoice = errorChoice;
 		this.errorPacket = errorPacket;
 		this.receivedPacket = received;
-		this.clientAddress = received.getAddress();
-		this.clientPort = received.getPort();
-		this.receiveAndSendSocket = receiveAndSendSocket;
+
+		System.out.println("Error Simulator: Packet received:");
+		printPacketInfo(received);
+		
+		this.clientAddress = receivedPacket.getAddress();
+		this.clientPort = receivedPacket.getPort();
+		this.receiveSocket = receiveSocket;
 		//temp
-		this.serverAddress = received.getAddress();
+		this.serverAddress = receivedPacket.getAddress();
 		
 		System.out.println("Created a thread");
 	}
@@ -41,42 +45,49 @@ public class ESThread extends Thread{
 	public void run() {
 		System.out.println("Thread is running...");
 		
-//		try {
-//			receiveAndSendSocket = new DatagramSocket();
-//		} catch (SocketException e) {
-//			e.printStackTrace();
-//			System.exit(1);
-//		}
-		if(errorType == 0) normal();
-		else if(errorType == 1) networkError();
-		else if (errorType == 2) errorCode();
+		try {
+			receiveSendSocket = new DatagramSocket();
+		} catch (SocketException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+		while(true) {
+			if(errorType == 0) normal();
+			else if(errorType == 1) networkError();
+			else if (errorType == 2) errorCode();
+		}
 	}
 	
 	public void normal() {
 		
 		System.out.println("Normal operation...");
-		if(receivedPacket.getPort() == serverPort) {
+		//if(receivedPacket.getPort() == serverPort) { // server side
+			sendPacket = new DatagramPacket(receivedPacket.getData(), receivedPacket.getLength(), this.serverAddress, this.serverPort);
+			try {
+				receiveSendSocket.send(sendPacket);
+				System.out.println("Error Simulator: Packet sent:");
+				printPacketInfo(sendPacket);
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+			
+			receivePacketFromServer();
+		//}
+		//else { // client side
 			sendPacket = new DatagramPacket(receivedPacket.getData(), receivedPacket.getLength(), this.clientAddress, this.clientPort);
 			try {
-				receiveAndSendSocket.send(sendPacket);
+				receiveSocket.send(sendPacket);
+				System.out.println("Error Simulator: Packet sent:");
+				printPacketInfo(sendPacket);
 			} catch (IOException e) {
 				e.printStackTrace();
 				System.exit(1);
 			}
 			
-			receivePacket();
-		}
-		else {
-			sendPacket = new DatagramPacket(receivedPacket.getData(), receivedPacket.getLength(), this.serverAddress, serverPort);
-			try {
-				receiveAndSendSocket.send(sendPacket);
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
-			
-			receivePacket();
-		}
+			receivePacketFromClient();
+		//}
 		
 	}
 	
@@ -121,14 +132,35 @@ public class ESThread extends Thread{
 		}
 	}
 	
-	public void receivePacket() {
+	public void receivePacketFromClient() {
 		try {
 			System.out.println("Receving a packet...");
-			receiveAndSendSocket.receive(receivedPacket);
+			receiveSocket.receive(receivedPacket);
+			System.out.println("Error Simulator: Packet received:");
+			printPacketInfo(receivedPacket);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
 	}
-
+	
+	public void receivePacketFromServer() {
+		try {
+			System.out.println("Receving a packet...");
+			receiveSendSocket.receive(receivedPacket);
+			this.serverPort = receivedPacket.getPort();
+			System.out.println("Error Simulator: Packet received:");
+			printPacketInfo(receivedPacket);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+	
+	public void printPacketInfo(DatagramPacket received){
+		System.out.println("Address: " + received.getAddress());
+		System.out.println("Port: " + received.getPort());
+		int len = received.getLength();
+		System.out.println("Length: " + len);
+	}
 }

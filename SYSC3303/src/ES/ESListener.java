@@ -22,10 +22,7 @@ public class ESListener {
 	
 	public void handleNormal() {
 		
-		System.out.println("I am panicing");
-		
 		byte[] data = new byte[1024];
-		
 		receivedPacket = new DatagramPacket(data, data.length);
 		
 		try {
