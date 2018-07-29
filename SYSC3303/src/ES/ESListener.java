@@ -39,6 +39,7 @@ public class ESListener {
 		}
 		
 		ESThread normalThread = new ESThread(0, 0, (byte)0, receivedPacket, receiveSendSocket);
+		normalThread.start();
 		
 	}
 	
@@ -59,6 +60,7 @@ public class ESListener {
 		}
 		
 		ESThread networkErrThread = new ESThread(1, transError, choice, receivedPacket, receiveSendSocket);
+		networkErrThread.start();
 		
 	}
 	
@@ -79,6 +81,7 @@ public class ESListener {
 		}
 		
 		ESThread errCodeThread = new ESThread(2, errorCode, choice, receivedPacket, receiveSendSocket);
+		errCodeThread.start();
 		
 	}
 	

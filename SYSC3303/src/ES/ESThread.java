@@ -3,7 +3,7 @@ package ES;
 import java.io.IOException;
 import java.net.*;
 
-public class ESThread implements Runnable{
+public class ESThread extends Thread{
 	
 	private DatagramPacket receivedPacket, sendPacket;
 	private DatagramSocket receiveAndSendSocket;
@@ -35,8 +35,7 @@ public class ESThread implements Runnable{
 		//temp
 		this.serverAddress = received.getAddress();
 		
-		Thread t = new Thread();
-		t.start();
+		System.out.println("Created a thread");
 	}
 	
 	public void run() {
