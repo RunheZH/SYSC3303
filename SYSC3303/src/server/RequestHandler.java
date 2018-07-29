@@ -10,13 +10,14 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 
 public class RequestHandler extends Thread{
 	
 	RequestParser RP;
 	DatagramPacket myPacket, sendPacket;
 	DatagramSocket sendReceiveSocket;
-	int length, finalBlock, TID;
+	int length, finalBlock, TID, terminate;
 	Client myClient;
 	String ID;
 	
@@ -29,6 +30,7 @@ public class RequestHandler extends Thread{
 		myPacket = receivePacket;
 		TID = receivePacket.getPort();
 		ID = "No." + TID + ": ";
+		terminate = 0;
 		try{
 			sendReceiveSocket = new DatagramSocket();
 		}catch (SocketException se){
@@ -55,7 +57,12 @@ public class RequestHandler extends Thread{
 		if(myPacket.getPort() != TID) {
 			System.out.println("ERROR: Unknown TID.");
 			SendErrorPacket(5, "Unknown transfer ID.");
-			receiveFromClient();
+			try{
+				receiveFromClient();
+			}catch (IOException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}			
 		}else {
 			RP = new RequestParser();
 			length = myPacket.getLength();
@@ -164,7 +171,8 @@ public class RequestHandler extends Thread{
 					receiveFromClient();
 				}
 			}else{
-				System.out.println("ERROR: Wrong package received.");
+				System.out.println("ERROR: Ignoring wrong DATA package received.");
+				receiveFromClient();
 				//	Error
 				//	Wrong ACK packet received
 			}
@@ -202,9 +210,8 @@ public class RequestHandler extends Thread{
 				}
 							
 			}else{
-				System.out.println("ERROR: Wrong package received.");
-				//	Error
-				//	Wrong ACK packet received
+				System.out.println("ERROR: Ignoring wrong ACK package received.");
+				receiveFromClient();
 			}
 		}else {
 			System.out.println("ERROR: Unknown TID.");
@@ -299,14 +306,23 @@ public class RequestHandler extends Thread{
 		}
 	}
 	
-	public void receiveFromClient() {
+	public void receiveFromClient() throws IOException {
+	
+		sendReceiveSocket.setSoTimeout(3000);
+		
 		try {
 			sendReceiveSocket.receive(myPacket);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
+		} catch (SocketTimeoutException e) {
+			terminate += 1;
+			if(terminate == 10) {
+				System.out.println("ERROR: No Response From Client, Disconnected.");
+				return;
+			}
+			System.out.println("Time out, resending...");
+			sendReceiveSocket.send(sendPacket);
+			receiveFromClient();
 		}
-		
+		terminate = 0;
 		handleRequest();
 	}
 	
