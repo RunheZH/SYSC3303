@@ -20,7 +20,7 @@ public class ESListener {
 	
 	public void handleNormal() {
 		
-		byte data[] = new byte[1024];
+		byte[] data = new byte[1024];
 		
 		receivedPacket = new DatagramPacket(data, data.length);
 		
@@ -34,13 +34,13 @@ public class ESListener {
 			System.exit(1);
 		}
 		
-		ESThread aThread = new ESThread(0, 0, (byte)0);
+		ESThread normalThread = new ESThread(0, 0, (byte)0, receivedPacket);
 		
 	}
 	
 	public void handleNetworkError(int transError, byte choice) {
 		
-		byte data[] = new byte[1024];
+		byte[] data = new byte[1024];
 		
 		receivedPacket = new DatagramPacket(data, data.length);
 		
@@ -54,13 +54,13 @@ public class ESListener {
 			System.exit(1);
 		}
 		
-		ESThread aThread = new ESThread(1, transError, choice);
+		ESThread networkErrThread = new ESThread(1, transError, choice, receivedPacket);
 		
 	}
 	
 	public void handleErrorCode(int errorCode, byte choice) {
 		
-		byte data[] = new byte[1024];
+		byte[] data = new byte[1024];
 		
 		receivedPacket = new DatagramPacket(data, data.length);
 		
@@ -74,7 +74,7 @@ public class ESListener {
 			System.exit(1);
 		}
 		
-		ESThread aThread = new ESThread(2, errorCode, choice);
+		ESThread errCodeThread = new ESThread(2, errorCode, choice, receivedPacket);
 		
 	}
 	
