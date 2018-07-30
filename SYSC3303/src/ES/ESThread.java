@@ -10,7 +10,7 @@ public class ESThread extends Thread{
 	
 	private int errorType;
 	private int errorChoice;
-	private byte errorPacket;
+	private int errorPacket;
 	private InetAddress clientAddress;
 	private int clientPort;
 	private InetAddress serverAddress;
@@ -18,7 +18,7 @@ public class ESThread extends Thread{
 	
 	private int counter = 0;
 	
-	public ESThread(int errorType, int errorChoice, byte errorPacket, DatagramPacket received) {
+	public ESThread(int errorType, int errorChoice, int errorPacket, DatagramPacket received) {
 		
 		byte[] receivedData = new byte[1024];
 //		byte[] sendData = new byte[1024];
@@ -54,11 +54,11 @@ public class ESThread extends Thread{
 		}
 		
 		
-		while(true) { // assume the file transfer has ended
+		 // assume the file transfer has ended
 			if(errorType == 0) normal();
 			else if(errorType == 1) networkError();
 			else if (errorType == 2) errorCode();
-		}
+		
 		
 	}
 	

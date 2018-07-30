@@ -7,9 +7,10 @@ import java.util.Scanner;
 public class ErrorSimulator {
 	
 	private Scanner scan;
-	private String ec,tc,pc;  
-	private boolean lisRunning = false;
+	private String ec,tc,pc, bc;  
 	private ESListener listener;
+	private int errorType,errorChoice;
+	private int packetChoice, blockChoice;
 
 	
 	public ErrorSimulator() {
@@ -33,22 +34,18 @@ public class ErrorSimulator {
 			return;
 		}
 		try {
-			int errorType = Integer.valueOf(ec);
+			errorType = Integer.valueOf(ec);
 			switch(errorType) {
 				case 0: 
-					if(lisRunning == false) {
-						lisRunning = true;
-						listener.start();
-					}
-					listener.setErrorType(errorType); 
+					listener.setError(errorType); 
+					listener.setOnline();
 					break;
-				case 1: 
-					listener.setErrorType(errorType); 
+				case 1: 			 
 					transmissionError();
 					break;
 				case 2: 
-					listener.setErrorType(errorType); 
-					System.out.println("Error Code selected");
+					//////////////////
+					//////////////////
 					break;
 				default: 
 					System.out.println("Invalid input, please try again.");
@@ -73,29 +70,17 @@ public class ErrorSimulator {
 			return;
 		}
 		try {
-			int errorChoice = Integer.valueOf(tc);
-			switch (tc) {
-				case "1": 
-					listener.setErrorChoice(errorChoice); 
-					packetSelection(); 
-					break;
-				case "2": 
-					listener.setErrorChoice(errorChoice); 
-					packetSelection(); 
-					break;
-				case "3": 
-					listener.setErrorChoice(errorChoice); 
-					packetSelection(); 
-					break;
-				case "4": 
-					errorMainMenu(); 
-					break;
-				default: 
-					System.out.println("Invalid input, please try again."); 
-					break;
+			errorChoice = Integer.valueOf(tc);
+			if(errorChoice < 0 || errorChoice > 4) {
+				System.out.println("Invalid input, please try again."); 
+				transmissionError();
+			}else {
+				if (errorChoice == 4) return;
+				packetSelection(); 
 			}
 		}catch(NumberFormatException e) {
 				System.out.println("Invalid input, please try again.");
+				transmissionError();
 		}
 		
 		
@@ -118,41 +103,55 @@ public class ErrorSimulator {
 			return;
 		}
 		try {
-			byte packetChoice = Byte.valueOf(pc);
-			switch (pc) {
-				case "1": 
-					listener.setPacketChoice(packetChoice); 
-					//listener.handleNetworkError(transError, packetChoice);
-					break;
-				case "2": 
-					listener.setPacketChoice(packetChoice); 
-				//	listener.handleNetworkError(transError, packetChoice);
-					break;
-				case "3": 
-					listener.setPacketChoice(packetChoice); 
-				//	listener.handleNetworkError(transError, packetChoice);
-					break;
-				case "4": 
-					listener.setPacketChoice(packetChoice); 
-				//	listener.handleNetworkError(transError, packetChoice);
-					break;
-				case "5": 
-					listener.setPacketChoice(packetChoice); 
-				//	listener.handleNetworkError(transError, packetChoice);
-					break;
-				case "6": 
-					transmissionError();
-					break;
-				default: 
-					System.out.println("Invalid input, please try again."); 
-					break;
+			packetChoice = Integer.valueOf(pc);
+			if (packetChoice < 1 || packetChoice > 6) {
+				System.out.println("Invalid input, please try again."); 
+				packetSelection();
+			}else {
+				if(packetChoice == 3 || packetChoice == 4) {
+					blockSelection();
+				}else if(packetChoice == 6){
+					return;
+				}else {
+					listener.setError(errorType, errorChoice, packetChoice); 
+					listener.setOnline();
+				}
 			}
-		}catch(NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			System.out.println("Invalid input, please try again.");
+			packetSelection();
 		}
 	
 	}
 	
+	public void blockSelection() {
+		System.out.println("---------- Transmission Error ----------");
+		System.out.println("    Please enter block number...");;
+		System.out.println("    Enter -1 to go back to Transmission Menu");
+		System.out.println(">>>>>>>> input quit to exit this program");
+		bc = scan.next();
+		
+		if(bc.equals("quit")) {
+			stop();
+			return;
+		}
+		try {
+			blockChoice = Integer.valueOf(bc);
+			if (blockChoice < -1) {
+				System.out.println("Invalid input, please try again."); 
+				blockSelection();
+			}else if (blockChoice == -1){
+				return;
+			}else {
+				listener.setError(errorType, errorChoice, packetChoice, blockChoice); 
+				listener.setOnline();
+			}
+		} catch (NumberFormatException e) {
+			System.out.println("Invalid input, please try again.");
+			blockSelection();
+		}
+		
+	}
 	
 	public void stop() {
 		listener.quit();

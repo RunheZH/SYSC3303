@@ -8,7 +8,8 @@ public class ESListener extends Thread{
 	private DatagramPacket receivedPacket;
 	private DatagramSocket receiveSendSocket;
 	private int errorType,errorChoice;
-	private byte packetChoice;
+	private int packetChoice, blockChoice;
+	private boolean lisRunning = false;
 	
 	public ESListener() {
 		try {
@@ -23,6 +24,7 @@ public class ESListener extends Thread{
 	}
 
 	public void run() {
+		System.out.println("Error Simulator: Listener now online.");
 		while(true) {
 			listen();
 		}
@@ -43,7 +45,22 @@ public class ESListener extends Thread{
 		normalThread.start();
 	}
 
-
+	public void setError(int error) {
+		setErrorType(error);
+	}
+	
+	public void setError(int errorType, int errorChoice, int packetChoice) {
+		setErrorType(errorType);
+		setErrorChoice(errorChoice);
+		setPacketChoice(packetChoice);
+		this.blockChoice = -1;
+	}
+	
+	public void setError(int errorType, int errorChoice, int packetChoice, int blockChoice) {
+		setError(errorType, errorChoice, packetChoice);
+		setBlockChoice(blockChoice);
+	}
+	
 	public void setErrorType(int errorType) {
 		this.errorType = errorType;
 		System.out.println("Mode set to " + errorType);
@@ -54,9 +71,21 @@ public class ESListener extends Thread{
 		System.out.println("Error set to " + errorType);
 	}
 	
-	public void setPacketChoice(byte packetChoice) {
+	public void setPacketChoice(int packetChoice) {
 		this.packetChoice = packetChoice;
 		System.out.println("Packet set to " + packetChoice);
+	}
+	
+	public void setBlockChoice(int blockChoice) {
+		this.blockChoice = blockChoice;
+		System.out.println("Block number set to " + packetChoice);
+	}
+	
+	public void setOnline() {
+		if(lisRunning == false) {
+			lisRunning = true;
+			start();
+		}	
 	}
 	
 	public void quit() {
