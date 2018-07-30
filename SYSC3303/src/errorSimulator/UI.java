@@ -97,7 +97,80 @@ public class UI {
 		}
 	}
 	
-	public void errorCodeError() {
+	public void errorCodeError1() {
+		System.out.println("---------- Error Code Error ----------");
+		System.out.println("    1. Invalid Opcode (Error Code 4)");
+		System.out.println("    2. Invalid Mode (Error Code 4)");
+		System.out.println("    2. Invalid Data Size (Error Code 4)");
+		System.out.println("    5. Back to Error Main Menu");
+		System.out.println(">>>>>>>> input quit to exit this program");
+		
+		status = true;
+		
+		while(status){
+			input = scan.next();
+			
+			switch (input) {
+				case "1": 
+					ecChoice = 1; 
+					status = false;
+					break;
+				case "2": 
+					ecChoice = 2;
+					status = false;
+					break;
+				case "5": 
+					status = false;
+					errorMainMenu(); 
+					break;
+				case "quit": 
+					System.out.println("Thank your for using our program. Goodbye!");
+					System.exit(0);
+					break;
+				default: 
+					System.out.println("Oops, something is wrong"); 
+					status = true;
+			}
+		}
+	}
+	
+	public void errorCodeError2() {
+		System.out.println("---------- Error Code Error ----------");
+		System.out.println("    1. Invalid Opcode (Error Code 4)");
+		System.out.println("    2. Invalid Mode (Error Code 4)");
+		System.out.println("    2. Invalid Data Size (Error Code 4)");
+		System.out.println("    5. Back to Error Main Menu");
+		System.out.println(">>>>>>>> input quit to exit this program");
+		
+		status = true;
+		
+		while(status){
+			input = scan.next();
+			
+			switch (input) {
+				case "1": 
+					ecChoice = 1; 
+					status = false;
+					break;
+				case "2": 
+					ecChoice = 2;
+					status = false;
+					break;
+				case "5": 
+					status = false;
+					errorMainMenu(); 
+					break;
+				case "quit": 
+					System.out.println("Thank your for using our program. Goodbye!");
+					System.exit(0);
+					break;
+				default: 
+					System.out.println("Oops, something is wrong"); 
+					status = true;
+			}
+		}
+	}
+	public void errorCodeError3() {
 		System.out.println("---------- Error Code Error ----------");
 		System.out.println("    1. Invalid Opcode (Error Code 4)");
 		System.out.println("    2. Invalid Mode (Error Code 4)");
