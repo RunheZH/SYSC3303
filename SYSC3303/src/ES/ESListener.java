@@ -7,7 +7,8 @@ public class ESListener extends Thread{
 	
 	private DatagramPacket receivedPacket;
 	private DatagramSocket receiveSendSocket;
-	private int errorType;
+	private int errorType,errorChoice;
+	private byte packetChoice;
 	
 	public ESListener() {
 		try {
@@ -38,7 +39,7 @@ public class ESListener extends Thread{
 			e.printStackTrace();
 			System.exit(1);
 		}
-		Thread normalThread = new ESThread(errorType, 0, (byte)0, receivedPacket);
+		Thread normalThread = new ESThread(errorType, errorChoice, packetChoice, receivedPacket);
 		normalThread.start();
 	}
 
@@ -46,6 +47,16 @@ public class ESListener extends Thread{
 	public void setErrorType(int errorType) {
 		this.errorType = errorType;
 		System.out.println("Mode set to " + errorType);
+	}
+	
+	public void setErrorChoice(int errorChoice) {
+		this.errorChoice = errorChoice;
+		System.out.println("Error set to " + errorType);
+	}
+	
+	public void setPacketChoice(byte packetChoice) {
+		this.packetChoice = packetChoice;
+		System.out.println("Packet set to " + packetChoice);
 	}
 	
 	public void quit() {

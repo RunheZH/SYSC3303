@@ -8,9 +8,6 @@ public class ErrorSimulator {
 	
 	private Scanner scan;
 	private String ec,tc,pc;  
-	private byte packetChoice;
-	private int ErrorCodeChoice;
-	private int transError;
 	private boolean lisRunning = false;
 	private ESListener listener;
 
@@ -71,31 +68,37 @@ public class ErrorSimulator {
 		System.out.println(">>>>>>>> input quit to exit this program");
 		
 		tc = scan.next();
-		
-		switch (tc) {
-			case "1": 
-				transError = 1;
-				packetSelection(); 
-				break;
-			case "2": 
-				transError = 2;
-				packetSelection(); 
-				break;
-			case "3": 
-				transError = 3;
-				packetSelection(); 
-				break;
-			case "4": 
-				transError = 4;
-				errorMainMenu(); 
-				break;
-			case "quit": 
-				listener.quit(); 
-				break;
-			default: 
-				System.out.println("Oops, something is wrong"); 
-				break;
+		if(tc.equals("quit")) {
+			stop();
+			return;
 		}
+		try {
+			int errorChoice = Integer.valueOf(tc);
+			switch (tc) {
+				case "1": 
+					listener.setErrorChoice(errorChoice); 
+					packetSelection(); 
+					break;
+				case "2": 
+					listener.setErrorChoice(errorChoice); 
+					packetSelection(); 
+					break;
+				case "3": 
+					listener.setErrorChoice(errorChoice); 
+					packetSelection(); 
+					break;
+				case "4": 
+					errorMainMenu(); 
+					break;
+				default: 
+					System.out.println("Invalid input, please try again."); 
+					break;
+			}
+		}catch(NumberFormatException e) {
+				System.out.println("Invalid input, please try again.");
+		}
+		
+		
 	}
 	
 	public void packetSelection() {
@@ -110,47 +113,46 @@ public class ErrorSimulator {
 		
 		pc = scan.next();
 		
-//		switch (pc) {
-//			case "1": 
-//				packetChoice = 1;
-//				listener.handleNetworkError(transError, packetChoice);
-//				break;
-//			case "2": 
-//				packetChoice = 2;
-//				listener.handleNetworkError(transError, packetChoice);
-//				break;
-//			case "3": 
-//				packetChoice = 3;
-//				listener.handleNetworkError(transError, packetChoice);
-//				break;
-//			case "4": 
-//				packetChoice = 4;
-//				listener.handleNetworkError(transError, packetChoice);
-//				break;
-//			case "5": 
-//				packetChoice = 5;
-//				listener.handleNetworkError(transError, packetChoice);
-//				break;
-//			case "6": 
-//				packetChoice = 6;
-//				listener.handleNetworkError(transError, packetChoice);
-//				break;
-//			case "quit": 
-//				listener.quit(); 
-//				break;
-//			default: 
-//				System.out.println("Oops, something is wrong"); 
-//				break;
-//		}
+		if(pc.equals("quit")) {
+			stop();
+			return;
+		}
+		try {
+			byte packetChoice = Byte.valueOf(pc);
+			switch (pc) {
+				case "1": 
+					listener.setPacketChoice(packetChoice); 
+					//listener.handleNetworkError(transError, packetChoice);
+					break;
+				case "2": 
+					listener.setPacketChoice(packetChoice); 
+				//	listener.handleNetworkError(transError, packetChoice);
+					break;
+				case "3": 
+					listener.setPacketChoice(packetChoice); 
+				//	listener.handleNetworkError(transError, packetChoice);
+					break;
+				case "4": 
+					listener.setPacketChoice(packetChoice); 
+				//	listener.handleNetworkError(transError, packetChoice);
+					break;
+				case "5": 
+					listener.setPacketChoice(packetChoice); 
+				//	listener.handleNetworkError(transError, packetChoice);
+					break;
+				case "6": 
+					transmissionError();
+					break;
+				default: 
+					System.out.println("Invalid input, please try again."); 
+					break;
+			}
+		}catch(NumberFormatException e) {
+			System.out.println("Invalid input, please try again.");
+		}
+	
 	}
 	
-	public byte getPacketChoice() {
-		return packetChoice;
-	}
-	
-	public int getTransError() {
-		return transError;
-	}
 	
 	public void stop() {
 		listener.quit();
