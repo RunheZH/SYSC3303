@@ -193,9 +193,9 @@ public class ESThread extends Thread{
 					sendData[i]=receiveClientPacket.getData()[i];
 				}
 				if(serverPort == -1) {
-					send(receiveClientPacket.getData(),clientAddr, 69);
+					send(sendData,clientAddr, 69);
 				}else {
-					send(receiveClientPacket.getData(),clientAddr, serverPort);
+					send(sendData,clientAddr, serverPort);
 				}
 			}
 		}
@@ -263,7 +263,7 @@ public class ESThread extends Thread{
 					sendData[i]=receiveServerPacket.getData()[i];
 				}
 				
-				send(receiveServerPacket.getData(),clientAddr, clientPort);
+				send(sendData,clientAddr, clientPort);
 				
 			}
 		}

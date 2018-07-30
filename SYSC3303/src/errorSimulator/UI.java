@@ -6,17 +6,16 @@ package errorSimulator;
 
 import java.util.Scanner;
 
-import ES.ESListener;
+
 
 public class UI {
 
 	private Scanner scan;
-	private String ec,tc; 
-	//private byte packetChoice;
+	private String input; 
 	private int errorChoice;
 	private int transError;
-	//private boolean status = false;
-	private ESListener listener;
+	private int ecChoice;
+	private boolean status;
 	
 	public  UI() {
 		scan = new Scanner(System.in);
@@ -26,26 +25,35 @@ public class UI {
 	
 	public void errorMainMenu() {
 		
-		System.out.println("----------Error Selection----------");
+		System.out.println("----------Error Selinputtion----------");
 		System.out.println("    0. Normal Operation");
 		System.out.println("    1. Transmission Error");
 		System.out.println("    2. Error Codes (1-6)");
 		System.out.println(">>>>>>>> input quit to exit this program");
 		
-		ec = scan.next();
-		
-		if(ec.equals("0")) {
-			errorChoice = 0;
-		}else if (ec.equals("1")) {
-			errorChoice = 1;
-			transmissionError();
-		}else if (ec.equals("2")) {
-			errorChoice = 2;
-			System.out.println("Error Code");
-		}else if (ec.equals("quit")) {
-			System.exit(0);
+		status = true;
+		while(status) {
+			input = scan.next();
+			
+			if(input.equals("0")) {
+				errorChoice = 0;
+				status = false;
+			}else if (input.equals("1")) {
+				errorChoice = 1;
+				status = false;
+				transmissionError();
+			}else if (input.equals("2")) {
+				errorChoice = 2;
+				status = false;
+				System.out.println("Error Code");
+			}else if (input.equals("quit")) {
+				System.out.println("Thank your for using our program. Goodbye!");
+				System.exit(0);
+			}else {
+				System.out.println("Invalid Input, Try Again!");
+				status = true;
+			}
 		}
-		
 	}
 	
 	public void transmissionError(){
@@ -56,32 +64,77 @@ public class UI {
 		System.out.println("    4. Back to Error main menu");
 		System.out.println(">>>>>>>> input quit to exit this program");
 		
-		tc = scan.next();
+		status = true;
 		
-		switch (tc) {
-			case "1": 
-				transError = 1; 
-				break;
-			case "2": 
-				transError = 2;
-				break;
-			case "3": 
-				transError = 3;
-				break;
-			case "4": 
-				transError = 4;
-				errorMainMenu(); 
-				break;
-			case "quit": 
-				System.exit(0);
-				break;
-			default: 
-				System.out.println("Oops, something is wrong"); 
-				break;
+		while(status){
+			input = scan.next();
+			
+			switch (input) {
+				case "1": 
+					transError = 1; 
+					status = false;
+					break;
+				case "2": 
+					transError = 2;
+					status = false;
+					break;
+				case "3": 
+					transError = 3;
+					status = false;
+					break;
+				case "4": 
+					status = false;
+					errorMainMenu(); 
+					break;
+				case "quit": 
+					System.out.println("Thank your for using our program. Goodbye!");
+					System.exit(0);
+					break;
+				default: 
+					System.out.println("Oops, something is wrong"); 
+					status = true;
+			}
 		}
 	}
 	
-	/*public void packetSelection() {
+	public void errorCodeError() {
+		System.out.println("---------- Error Code Error ----------");
+		System.out.println("    1. Invalid Opcode (Error Code 4)");
+		System.out.println("    2. Invalid Mode (Error Code 4)");
+		System.out.println("    2. Invalid Data Size (Error Code 4)");
+		System.out.println("    5. Back to Error Main Menu");
+		System.out.println(">>>>>>>> input quit to exit this program");
+		
+		status = true;
+		
+		while(status){
+			input = scan.next();
+			
+			switch (input) {
+				case "1": 
+					ecChoice = 1; 
+					status = false;
+					break;
+				case "2": 
+					ecChoice = 2;
+					status = false;
+					break;
+				case "5": 
+					status = false;
+					errorMainMenu(); 
+					break;
+				case "quit": 
+					System.out.println("Thank your for using our program. Goodbye!");
+					System.exit(0);
+					break;
+				default: 
+					System.out.println("Oops, something is wrong"); 
+					status = true;
+			}
+		}
+	}
+	
+	/*public void packetSelinputtion() {
 		System.out.println("---------- Transmission Error ----------");
 		System.out.println("    1. RRQ");
 		System.out.println("    2. WRQ");
@@ -93,30 +146,30 @@ public class UI {
 		
 		pc = scan.next();
 		
-		switch (pc) {
+		swiinputh (pc) {
 			case "1": 
-				packetChoice = 1;
-				listener.handleNetworkError(transError, packetChoice);
+				packeinputhoice = 1;
+				listener.handleNetworkError(transError, packeinputhoice);
 				break;
 			case "2": 
-				packetChoice = 2;
-				listener.handleNetworkError(transError, packetChoice);
+				packeinputhoice = 2;
+				listener.handleNetworkError(transError, packeinputhoice);
 				break;
 			case "3": 
-				packetChoice = 3;
-				listener.handleNetworkError(transError, packetChoice);
+				packeinputhoice = 3;
+				listener.handleNetworkError(transError, packeinputhoice);
 				break;
 			case "4": 
-				packetChoice = 4;
-				listener.handleNetworkError(transError, packetChoice);
+				packeinputhoice = 4;
+				listener.handleNetworkError(transError, packeinputhoice);
 				break;
 			case "5": 
-				packetChoice = 5;
-				listener.handleNetworkError(transError, packetChoice);
+				packeinputhoice = 5;
+				listener.handleNetworkError(transError, packeinputhoice);
 				break;
 			case "6": 
-				packetChoice = 6;
-				listener.handleNetworkError(transError, packetChoice);
+				packeinputhoice = 6;
+				listener.handleNetworkError(transError, packeinputhoice);
 				break;
 			case "quit": 
 				listener.quit(); 
@@ -127,8 +180,8 @@ public class UI {
 		}
 	}*/
 	
-	/*public byte getPacketChoice() {
-		return packetChoice;
+	/*public byte getPackeinputhoice() {
+		return packeinputhoice;
 	}*/
 	
 	public int getErrorType() {
