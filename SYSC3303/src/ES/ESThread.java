@@ -16,8 +16,7 @@ public class ESThread extends Thread{
 	private InetAddress serverAddress;
 	private int serverPort = 69;
 	
-	
-	public ESThread(int errorType, int errorChoice, byte errorPacket, DatagramPacket received, DatagramSocket receiveSocket) {
+	public ESThread(int errorType, int errorChoice, byte errorPacket, DatagramPacket received) {
 		
 		byte[] receivedData = new byte[1024];
 //		byte[] sendData = new byte[1024];
@@ -35,11 +34,11 @@ public class ESThread extends Thread{
 		
 		this.clientAddress = receivedPacket.getAddress();
 		this.clientPort = receivedPacket.getPort();
-		this.receiveSocket = receiveSocket;
 		//temp
 		this.serverAddress = receivedPacket.getAddress();
 		
 		System.out.println("Created a thread");
+
 	}
 	
 	public void run() {
@@ -52,11 +51,13 @@ public class ESThread extends Thread{
 			System.exit(1);
 		}
 		
-		while(true) {
+		
+		while(true) { // assume the file transfer has ended
 			if(errorType == 0) normal();
 			else if(errorType == 1) networkError();
 			else if (errorType == 2) errorCode();
 		}
+		
 	}
 	
 	public void normal() {
@@ -64,7 +65,9 @@ public class ESThread extends Thread{
 		System.out.println("Normal operation...");
 		//if(receivedPacket.getPort() == serverPort) { // server side
 			sendPacket = new DatagramPacket(receivedPacket.getData(), receivedPacket.getLength(), this.serverAddress, this.serverPort);
+			
 			try {
+				
 				receiveSendSocket.send(sendPacket);
 				System.out.println("Error Simulator: Packet sent:");
 				printPacketInfo(sendPacket);
@@ -78,15 +81,16 @@ public class ESThread extends Thread{
 		//else { // client side
 			sendPacket = new DatagramPacket(receivedPacket.getData(), receivedPacket.getLength(), this.clientAddress, this.clientPort);
 			try {
-				receiveSocket.send(sendPacket);
+				receiveSendSocket.send(sendPacket);
 				System.out.println("Error Simulator: Packet sent:");
 				printPacketInfo(sendPacket);
 			} catch (IOException e) {
 				e.printStackTrace();
 				System.exit(1);
 			}
-			
+
 			receivePacketFromClient();
+			
 		//}
 		
 	}
@@ -135,7 +139,7 @@ public class ESThread extends Thread{
 	public void receivePacketFromClient() {
 		try {
 			System.out.println("Receving a packet...");
-			receiveSocket.receive(receivedPacket);
+			receiveSendSocket.receive(receivedPacket);
 			System.out.println("Error Simulator: Packet received:");
 			printPacketInfo(receivedPacket);
 		} catch (IOException e) {

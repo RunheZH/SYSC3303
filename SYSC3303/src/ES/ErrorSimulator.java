@@ -1,5 +1,8 @@
 package ES;
 
+import java.io.IOException;
+import java.net.*;
+import java.net.SocketException;
 import java.util.Scanner;
 
 public class ErrorSimulator {
@@ -13,8 +16,10 @@ public class ErrorSimulator {
 	private ESListener listener;
 	
 	public ErrorSimulator() {
+		
 		scan = new Scanner(System.in);
 		listener = new ESListener();
+		
 	}
 
 	 
@@ -29,16 +34,25 @@ public class ErrorSimulator {
 		
 		ec = scan.next();
 		
-		if(ec.equals("0")) {
+		switch(ec) {
+		case "0": 
 			listener.handleNormal();
-		}else if (ec.equals("1")) {
+			errorMainMenu();
+			break;
+		case "1": 
 			transmissionError();
-		}else if (ec.equals("2")) {
+			break;
+		case "2": 
 			System.out.println("Error Code");
-		}else if (ec.equals("quit")) {
+			errorMainMenu();
+			break;
+		case "quit": 
 			listener.quit();
+			break;
+		default:
+			System.out.println("Oops, something is wrong");
+			break;
 		}
-		
 	}
 	
 	public void transmissionError(){
@@ -134,8 +148,9 @@ public class ErrorSimulator {
 	public static void main(String[] args) {
 		
 		ErrorSimulator es = new ErrorSimulator();
-		es.errorMainMenu();
-
+		while(true) {
+			es.errorMainMenu();
+		}
 	}
 
 }
