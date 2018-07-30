@@ -6,7 +6,7 @@ import java.net.*;
 public class ESThread extends Thread{
 	
 	private DatagramPacket receivedPacket, sendPacket;
-	private DatagramSocket receiveSocket, receiveSendSocket;
+	private DatagramSocket receiveSendSocket;
 	
 	private int errorType;
 	private int errorChoice;
@@ -15,6 +15,8 @@ public class ESThread extends Thread{
 	private int clientPort;
 	private InetAddress serverAddress;
 	private int serverPort = 69;
+	
+	private int counter = 0;
 	
 	public ESThread(int errorType, int errorChoice, byte errorPacket, DatagramPacket received) {
 		
@@ -88,9 +90,10 @@ public class ESThread extends Thread{
 				e.printStackTrace();
 				System.exit(1);
 			}
-
-			receivePacketFromClient();
 			
+			counter ++;
+			
+			receivePacketFromClient();
 		//}
 		
 	}
