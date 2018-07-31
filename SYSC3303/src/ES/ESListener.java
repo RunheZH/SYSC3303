@@ -7,8 +7,8 @@ public class ESListener extends Thread{
 	
 	private DatagramPacket receivedPacket;
 	private DatagramSocket receiveSendSocket;
-	private int errorType,errorChoice;
-	private int packetChoice, blockChoice;
+	private int errorType,errorChoice, packetChoice, blockChoice, delayChoice;
+	private int tempET,tempEC, tempPC, tempBC, tempDC;
 	private boolean lisRunning = false;
 	
 	public ESListener() {
@@ -41,47 +41,41 @@ public class ESListener extends Thread{
 			e.printStackTrace();
 			System.exit(1);
 		}
-		Thread normalThread = new ESThread(errorType, errorChoice, packetChoice, receivedPacket);
+		Thread normalThread = new ESThread(errorType, errorChoice, packetChoice,blockChoice,delayChoice,receivedPacket);
 		normalThread.start();
-	}
-
-	public void setError(int error) {
-		setErrorType(error);
-	}
-	
-	public void setError(int errorType, int errorChoice, int packetChoice) {
-		setErrorType(errorType);
-		setErrorChoice(errorChoice);
-		setPacketChoice(packetChoice);
-		this.blockChoice = -1;
-	}
-	
-	public void setError(int errorType, int errorChoice, int packetChoice, int blockChoice) {
-		setError(errorType, errorChoice, packetChoice);
-		setBlockChoice(blockChoice);
 	}
 	
 	public void setErrorType(int errorType) {
-		this.errorType = errorType;
-		System.out.println("Mode set to " + errorType);
+		this.tempET = errorType;
+		System.out.println("Mode set to " + this.tempET);
 	}
 	
 	public void setErrorChoice(int errorChoice) {
-		this.errorChoice = errorChoice;
-		System.out.println("Error set to " + errorType);
+		this.tempEC = errorChoice;
+		System.out.println("Error set to " + this.tempEC);
 	}
 	
 	public void setPacketChoice(int packetChoice) {
-		this.packetChoice = packetChoice;
-		System.out.println("Packet set to " + packetChoice);
+		this.tempPC = packetChoice;
+		System.out.println("Packet set to " + this.tempPC);
 	}
 	
 	public void setBlockChoice(int blockChoice) {
-		this.blockChoice = blockChoice;
-		System.out.println("Block number set to " + packetChoice);
+		this.tempBC = blockChoice;
+		System.out.println("Block number set to " + this.tempBC);
 	}
 	
-	public void setOnline() {
+	public void setDelayChoice(int delayChoice) {
+		this.tempDC = delayChoice;
+		System.out.println("Delay time set to " + this.tempDC + " ms.");
+	}
+	public void confirmChange() {
+		errorType = tempET;
+		errorChoice = tempEC;
+		packetChoice = tempPC;
+		blockChoice = tempBC;
+		delayChoice = tempDC;
+		System.out.println("Error configration submited.");
 		if(lisRunning == false) {
 			lisRunning = true;
 			start();

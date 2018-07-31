@@ -1,16 +1,14 @@
 package ES;
 
-import java.io.*;
-import java.net.*;
 import java.util.Scanner;
 
 public class ErrorSimulator {
 	
 	private Scanner scan;
-	private String ec,tc,pc, bc;  
+	private String ec,tc,pc, bc, dc;  
 	private ESListener listener;
 	private int errorType,errorChoice;
-	private int packetChoice, blockChoice;
+	private int packetChoice, blockChoice, delayChoice;
 
 	
 	public ErrorSimulator() {
@@ -37,8 +35,8 @@ public class ErrorSimulator {
 			errorType = Integer.valueOf(ec);
 			switch(errorType) {
 				case 0: 
-					listener.setError(errorType); 
-					listener.setOnline();
+					listener.setErrorType(errorType); 
+					listener.confirmChange();
 					break;
 				case 1: 			 
 					transmissionError();
@@ -74,8 +72,9 @@ public class ErrorSimulator {
 			if(errorChoice < 0 || errorChoice > 4) {
 				System.out.println("Invalid input, please try again."); 
 				transmissionError();
-			}else {
+			}else {		
 				if (errorChoice == 4) return;
+				listener.setErrorChoice(errorChoice);
 				packetSelection(); 
 			}
 		}catch(NumberFormatException e) {
@@ -85,15 +84,43 @@ public class ErrorSimulator {
 		
 		
 	}
+	public void delaySelection() {
+		System.out.println("---------- Delay Selection ----------");
+		System.out.println("    Please enter delay time (ms)...");;
+		System.out.println("    Enter -1 to go back to Error Menu");
+		System.out.println(">>>>>>>> input quit to exit this program");
+		dc = scan.next();
+		
+		if(dc.equals("quit")) {
+			stop();
+			return;
+		}
+		try {
+			delayChoice = Integer.valueOf(dc);
+			if (delayChoice < -1) {
+				System.out.println("Invalid input, please try again."); 
+				delaySelection();
+			}else if (delayChoice == -1){
+				return;
+			}else {
+				listener.setDelayChoice(delayChoice);
+				listener.confirmChange();
+			}
+		} catch (NumberFormatException e) {
+			System.out.println("Invalid input, please try again.");
+			delaySelection();
+		}
+		
+	}
 	
 	public void packetSelection() {
-		System.out.println("---------- Transmission Error ----------");
+		System.out.println("---------- Packet Selection ----------");
 		System.out.println("    1. RRQ");
 		System.out.println("    2. WRQ");
 		System.out.println("    3. DATA");
 		System.out.println("    4. ACK");
 		System.out.println("    5. ERROR" );
-		System.out.println("    6. Back to Transmission Menu");
+		System.out.println("    6. Back to Error Menu");
 		System.out.println(">>>>>>>> input quit to exit this program");
 		
 		pc = scan.next();
@@ -113,8 +140,12 @@ public class ErrorSimulator {
 				}else if(packetChoice == 6){
 					return;
 				}else {
-					listener.setError(errorType, errorChoice, packetChoice); 
-					listener.setOnline();
+					if(errorChoice == 2) {
+						delaySelection();
+					}else {
+						listener.setPacketChoice(packetChoice);
+						listener.confirmChange();
+					}
 				}
 			}
 		} catch (NumberFormatException e) {
@@ -125,9 +156,9 @@ public class ErrorSimulator {
 	}
 	
 	public void blockSelection() {
-		System.out.println("---------- Transmission Error ----------");
+		System.out.println("---------- Block Selection ----------");
 		System.out.println("    Please enter block number...");;
-		System.out.println("    Enter -1 to go back to Transmission Menu");
+		System.out.println("    Enter -1 to go back to Error Menu");
 		System.out.println(">>>>>>>> input quit to exit this program");
 		bc = scan.next();
 		
@@ -143,8 +174,12 @@ public class ErrorSimulator {
 			}else if (blockChoice == -1){
 				return;
 			}else {
-				listener.setError(errorType, errorChoice, packetChoice, blockChoice); 
-				listener.setOnline();
+				if(errorChoice == 2) {
+					delaySelection();
+				}else {
+					listener.setPacketChoice(packetChoice);
+					listener.confirmChange();
+				}
 			}
 		} catch (NumberFormatException e) {
 			System.out.println("Invalid input, please try again.");
