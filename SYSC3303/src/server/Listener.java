@@ -5,12 +5,14 @@
 package server;
 
 import java.net.*;
+import java.util.ArrayList;
 import java.io.*;
 
 public class Listener extends Thread{
 	
 	private DatagramSocket sendReceiveSocket;
 	private DatagramPacket receivePacket;
+	
 	private boolean running = true;		// turn to false if needs to close listener 
 	
 	public Listener(int port) {		

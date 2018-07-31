@@ -199,7 +199,7 @@ public class RequestHandler extends Thread{
 		if(myClient != null) {
 			if(block == myClient.getBlockNum()){
 				if(finalBlock == block) {
-					//	Client has received the last block
+					//	Client hdas received the last block
 					//	End thread
 					System.out.println("Transfer Complete");
 					myClient.close();
@@ -321,9 +321,10 @@ public class RequestHandler extends Thread{
 			System.out.println("Time out " + terminate + ".");
 			if(terminate == TIMEOUTMAX) {
 				System.out.println(ID + "ERROR: No Response From Client, Disconnected.");
+				myClient.close();
 				return;
 			}
-			if(currentRequest.equals("WRITE")) {
+			if(currentRequest.equals("READ")) {
 				System.out.println("Resending...");
 				sendReceiveSocket.send(sendPacket);
 			}else {

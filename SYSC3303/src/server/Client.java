@@ -7,12 +7,16 @@ package server;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.util.ArrayList;
 
 public class Client {
+	
+	private static ArrayList<Integer> activeClients = new ArrayList<>();
 	
 	private InetAddress myAddress;
 	private int myPort, myBlockNum;
 	private FileHandler myFH;
+	
 	
 	//	Construct with connect information
 	public Client(DatagramPacket receivePacket, int blockNum, FileHandler FH) {
@@ -21,6 +25,11 @@ public class Client {
 		myBlockNum = blockNum;
 		myFH = FH;
 	}
+	
+	public synchronized void addClient(Client c) {
+		
+	}
+	
 	
 	/*
 	 * Public information getters
