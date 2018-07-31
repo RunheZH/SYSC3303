@@ -127,6 +127,8 @@ public class ESThread extends Thread{
 		if(ifError(receivedPacket)) {
 			if(errorType == 1) {
 				makeTransmissionError(receivedPacket);
+				errorType = 0;
+				receive();
 			}else if(errorType == 2) {
 				////////////////////
 				///////////////////
