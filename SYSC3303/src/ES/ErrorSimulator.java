@@ -38,10 +38,12 @@ public class ErrorSimulator {
 					listener.setErrorType(errorType); 
 					listener.confirmChange();
 					break;
-				case 1: 			 
+				case 1: 		
+					listener.setErrorType(errorType); 
 					transmissionError();
 					break;
 				case 2: 
+					listener.setErrorType(errorType); 
 					//////////////////
 					//////////////////
 					break;
@@ -136,14 +138,15 @@ public class ErrorSimulator {
 				packetSelection();
 			}else {
 				if(packetChoice == 3 || packetChoice == 4) {
+					listener.setPacketChoice(packetChoice);
 					blockSelection();
 				}else if(packetChoice == 6){
 					return;
 				}else {
+					listener.setPacketChoice(packetChoice);
 					if(errorChoice == 2) {
 						delaySelection();
-					}else {
-						listener.setPacketChoice(packetChoice);
+					}else {	
 						listener.confirmChange();
 					}
 				}
@@ -177,7 +180,7 @@ public class ErrorSimulator {
 				if(errorChoice == 2) {
 					delaySelection();
 				}else {
-					listener.setPacketChoice(packetChoice);
+					listener.setBlockChoice(blockChoice);
 					listener.confirmChange();
 				}
 			}
