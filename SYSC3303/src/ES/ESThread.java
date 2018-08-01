@@ -15,7 +15,6 @@ public class ESThread extends Thread{
 	private int delayChoice;
 	private InetAddress clientAddress;
 	private int clientPort;
-	private InetAddress serverAddress = null;
 	private int serverPort = 69;
 	private RequestParser rp;
 	private int ID;
@@ -31,10 +30,6 @@ public class ESThread extends Thread{
 		this.blockChoice = blockChoice;
 		this.delayChoice = delayChoice;
 		this.receivedPacket = received;
-
-		System.out.println("Error Simulator: Packet received:");
-		printPacketInfo(received);
-
 		this.clientAddress = receivedPacket.getAddress();
 		this.clientPort = receivedPacket.getPort();
 		//temp
@@ -53,11 +48,52 @@ public class ESThread extends Thread{
 
 	public void run() {
 		System.out.println("Thread is running...");
+		
+		if(!ifClient(receivedPacket)) {
+			if(serverPort == -1) 
+				this.serverPort = receivedPacket.getPort();
+		}
+		
+		System.out.println("Packet received:");
+		printPacketInfo(receivedPacket);
 		tryError(receivedPacket);
-
 	}
 
+	private void tryError(DatagramPacket receivedPacket){
+		rp.parseRequest(receivedPacket.getData(), receivedPacket.getLength());
 
+		if(ifError(receivedPacket)) {
+			System.out.println("Target packet received, making error...");
+			if(errorType == 1) {
+				makeTransmissionError(receivedPacket);
+				errorType = 0;
+				receive();
+			}else if(errorType == 2) {
+				////////////////////
+				///////////////////
+			}
+		}else {
+			
+			transferPacket(receivedPacket);
+			receive();
+		}
+	}
+
+	private boolean ifError(DatagramPacket receivedPacket) {
+		System.out.println(errorPacket + " " + rp.getType());
+		if(errorType == 0) return false;
+		
+		if(errorPacket == rp.getType()) {
+			if(errorPacket != 3 && errorPacket != 4) {
+				return true;
+			}else {
+				if(blockChoice == rp.getBlockNum()) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 
 	public void errorCode() {
 
@@ -105,7 +141,7 @@ public class ESThread extends Thread{
 			receiveSendSocket.receive(receivedPacket);
 
 			if(!ifClient(receivedPacket)) {
-				if(serverPort == -1) 
+				if(serverPort == 69) 
 					this.serverPort = receivedPacket.getPort();
 			}
 
@@ -121,41 +157,14 @@ public class ESThread extends Thread{
 		tryError(receivedPacket);
 	}
 
-	private void tryError(DatagramPacket receivedPacket){
-		rp.parseRequest(receivedPacket.getData(), receivedPacket.getLength());
-
-		if(ifError(receivedPacket)) {
-			if(errorType == 1) {
-				makeTransmissionError(receivedPacket);
-				errorType = 0;
-				receive();
-			}else if(errorType == 2) {
-				////////////////////
-				///////////////////
-			}
-		}else {
-			transferPacket(receivedPacket);
-			receive();
-		}
-	}
-
-	private boolean ifError(DatagramPacket receivedPacket) {
-		if(errorType == 0) return false;
-		if(errorPacket == rp.getType()) {
-			if(errorPacket != 3 && errorPacket != 4) {
-				return true;
-			}else {
-				if(blockChoice == rp.getBlockNum()) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
+	
 
 	private void makeTransmissionError(DatagramPacket receivedPacket) {
-		if(errorChoice == 1) {}
+		if(errorChoice == 1) {
+			System.out.println("Target packet has lost.");
+		}
 		else if(errorChoice == 2) {
+			System.out.println("Delaying... " + delayChoice + "ms");
 			try {
 				Thread.sleep(delayChoice);
 			} catch (InterruptedException e) {
@@ -163,6 +172,7 @@ public class ESThread extends Thread{
 			}
 			transferPacket(receivedPacket);
 		}else if(errorChoice == 3) {
+			System.out.println("Duplicating...");
 			transferPacket(receivedPacket);
 			transferPacket(receivedPacket);
 		}else {
@@ -171,8 +181,13 @@ public class ESThread extends Thread{
 	}
 
 	public void transferPacket(DatagramPacket receivedPacket) {
+		System.out.println("Passing packet received...");
 		if(ifClient(receivedPacket)) {
-			sendPacket = new DatagramPacket(receivedPacket.getData(), receivedPacket.getLength(), this.serverAddress, this.serverPort);
+			try {
+				sendPacket = new DatagramPacket(receivedPacket.getData(), receivedPacket.getLength(), InetAddress.getLocalHost(), this.serverPort);
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			}
 			sendPacket(sendPacket);
 		}else {
 			sendPacket = new DatagramPacket(receivedPacket.getData(), receivedPacket.getLength(), this.clientAddress, this.clientPort);
