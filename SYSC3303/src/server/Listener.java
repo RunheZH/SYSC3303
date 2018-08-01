@@ -5,7 +5,6 @@
 package server;
 
 import java.net.*;
-import java.util.ArrayList;
 import java.io.*;
 
 public class Listener extends Thread{
@@ -82,6 +81,8 @@ public class Listener extends Thread{
 		running = false;
 		sendReceiveSocket.close();	
 	}
+	
+	
 	
 	/*
 	*	Method to display information related to the data received

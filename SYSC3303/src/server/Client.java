@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 public class Client {
 	
-	private static ArrayList<Integer> activeClients = new ArrayList<>();
+	private static ArrayList<Client> activeClients = new ArrayList<>();
 	
 	private InetAddress myAddress;
 	private int myPort, myBlockNum;
@@ -26,10 +26,26 @@ public class Client {
 		myFH = FH;
 	}
 	
-	public synchronized void addClient(Client c) {
-		
+	public synchronized void addToClients() {
+		activeClients.add(this);
 	}
 	
+	public synchronized void removeFromClients() {
+		activeClients.remove(this);
+		notifyAll();
+	}
+	
+	public synchronized static boolean findClientByPacket(DatagramPacket receivePacket) {
+		for(Client c : activeClients) {
+			if(c.getAddress().equals(receivePacket.getAddress()) && 
+					c.getPort() == receivePacket.getPort()) return true;
+		}
+		return false;
+	}
+	
+	public static int getClientsSize() {
+		return activeClients.size();
+	}
 	
 	/*
 	 * Public information getters
@@ -57,5 +73,6 @@ public class Client {
 	//	Cleaner
 	public void close() throws IOException {
 		myFH.close();
+		removeFromClients();
 	}
 }
