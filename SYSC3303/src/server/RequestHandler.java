@@ -25,6 +25,7 @@ public class RequestHandler extends Thread{
 	private Client myClient;
 	private String ID, currentRequest;
 	private InetAddress TAddr;
+
 	
 	/*
 	 * Construct handler with packet information
@@ -111,6 +112,7 @@ public class RequestHandler extends Thread{
 			//	Save client information and send first piece of data
 			myClient = new Client(myPacket, 1, new FileHandler(this));
 			myClient.addToClients();
+
 			currentRequest = "READ";
 			finalBlock = -1;
 			byte[] filedata = myClient.getFileHandler().readFile(filename);	
@@ -144,6 +146,7 @@ public class RequestHandler extends Thread{
 		if(myClient == null) {
 			myClient = new Client(myPacket, 1, new FileHandler(this));
 			myClient.addToClients();
+
 			currentRequest = "WRITE";
 			if(myClient.getFileHandler().prepareWrite(filename) == false) {
 				System.out.println(ID + "Disconnected.");
@@ -312,7 +315,6 @@ public class RequestHandler extends Thread{
 			sendData[4 + i] = msgData[i];
 		}
 		sendData[sendData.length - 1] = 0;
-
 		sendPacket(sendData);
 	}
 	
@@ -332,6 +334,7 @@ public class RequestHandler extends Thread{
 				return;
 			}
 			if(currentRequest.equals("READ")) {
+
 				System.out.println("Resending...");
 				sendReceiveSocket.send(sendPacket);
 			}else {
