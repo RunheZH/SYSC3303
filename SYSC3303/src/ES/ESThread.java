@@ -80,7 +80,6 @@ public class ESThread extends Thread{
 	}
 
 	private boolean ifError(DatagramPacket receivedPacket) {
-		System.out.println(errorPacket + " " + rp.getType());
 		if(errorType == 0) return false;
 		
 		if(errorPacket == rp.getType()) {
