@@ -26,7 +26,6 @@ public class RequestHandler extends Thread{
 	private Client myClient;
 	private String ID, currentRequest;
 	private InetAddress TAddr;
-
 	
 	/*
 	 * Construct handler with packet information
@@ -54,7 +53,6 @@ public class RequestHandler extends Thread{
 	 * New thread handling request from client starts here
 	 * */
 	public void run() {
-		
 		handleRequest();
 	}
 	
@@ -108,12 +106,13 @@ public class RequestHandler extends Thread{
 		
 		System.out.println("File Read Requst Received.");
 		System.out.println("Requested File: " + filename);
-			
 		if(myClient == null) {
 			//	Save client information and send first piece of data
 			myClient = new Client(myPacket, 1, new FileHandler(this));
-			myClient.addToClients();
-
+			if(Client.addToClients(myClient) == false) {
+				System.out.println("Invalid request, the client is currenly active.");
+				return;
+			}
 			currentRequest = "READ";
 			finalBlock = -1;
 			byte[] filedata = myClient.getFileHandler().readFile(filename);	
@@ -146,8 +145,10 @@ public class RequestHandler extends Thread{
 		//	Create Client and save information into it
 		if(myClient == null) {
 			myClient = new Client(myPacket, 1, new FileHandler(this));
-			myClient.addToClients();
-
+			if(Client.addToClients(myClient) == false) {
+				System.out.println("Invalid request, the client is currenly active.");
+				return;
+			}
 			currentRequest = "WRITE";
 			if(myClient.getFileHandler().prepareWrite(filename) == false) {
 				System.out.println(ID + "Disconnected.");
@@ -189,7 +190,7 @@ public class RequestHandler extends Thread{
 					myClient.close();
 					return;
 				}
-			}else if(myClient.getBlockNum() == (block - 1)){
+			}else if((myClient.getBlockNum() - 1) == block){
 				System.out.println("ERROR: Previous data block received, resending ACK packet...");
 				sendPacket(sendPacket);
 			}else{

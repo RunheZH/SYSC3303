@@ -9,16 +9,20 @@ import java.net.*;
 public class Sender {
 	private Client c;
 	private DatagramSocket sendReceiveSocket;
-	private DatagramPacket receivePacket, sendPacket;
+	private DatagramPacket receivePacket, sendPacket, rp2;
 	private FileHandler fileHandler;
-	private RequestParser RP;
+	private RequestParser RP, PP;
 	private int blockNumber = 0, port, finalBlock, TID, end = 0;
-	private String filename;
+	private String filename, currentRequest;
 	private static final int TIMEOUTMAX = 4;
 
 	public Sender(Client c){
 		this.c = c;
 		RP = new RequestParser();
+
+	}
+
+	public void newPort () {
 		try {
 			sendReceiveSocket = new DatagramSocket();
 		} catch (SocketException se) {   
@@ -36,10 +40,12 @@ public class Sender {
 		receivePacket = new DatagramPacket(data, data.length);
 		sendReceiveSocket.setSoTimeout(3000);
 
-
 		try {
 			sendReceiveSocket.receive(receivePacket);
+			rp2 = receivePacket;
 			TID = receivePacket.getPort();
+	
+	//		System.out.println("type: "+type );
 			end = 0;
 			PrintReceiver(receivePacket);
 			ReceiveHandler(receivePacket);
@@ -48,11 +54,18 @@ public class Sender {
 			//System.exit(1);
 			end++;
 			System.out.println("Timeout "+ end + " time(s)");
-
+			
 			if(end == TIMEOUTMAX) {
 				end = 0;
 				System.out.println("ERROR: No Response From Server, closing transmission.");
 				return;
+			}
+			if(currentRequest.equals("2") && sendPacket.getData()[1] == 3 ) {
+				System.out.println("Resending...");
+				System.out.println(sendPacket.getData()[3]);
+				sendReceiveSocket.send(sendPacket);
+			}else {
+				System.out.println("Waiting...");
 			}
 			Receiver();
 		}	
@@ -122,13 +135,14 @@ public class Sender {
 			if (resend < 4) {
 				System.out.println("packet bk number "+blockNum+" VS current bk number "+ blockNumber+"");
 				System.out.println("Packet already received (duplicated), Resending ACK packet");
-				Resend(blockNumber++);
+				ResendACK(blockNumber-1);
 				resend++;
+				Receiver();
 			}else {
 				System.out.println("Resending");
 			}
 		}else{
-			System.out.println("Error bk number, lololololololol");
+			System.out.println("Error bk number, lololololololol");		
 		}
 	}
 
@@ -165,12 +179,10 @@ public class Sender {
 			}
 		}else if (blockNum < blockNumber) {
 			System.out.println("Duplicate ACK packet received (delayed)");
-			System.out.println("Good bye Sorcerer's Apprentice Bug :heart");
-			SendErrorPacket(4, "Illegal TFTP operation");
+			Receiver();
 		}else{
 			System.out.println("Error, Invalid block received");
 			System.out.println("packet bk number "+blockNum+" VS current bk number "+ blockNumber+"");
-			SendErrorPacket(4, "Illegal TFTP operation");
 		}	
 	}
 
@@ -184,13 +196,34 @@ public class Sender {
 	}
 
 	//resend ack packet
-	public void Resend (int BKNumber) {
+	public void ResendACK (int BKNumber) {
 		byte [] send = new byte [4];
 		send[0] = 0;
 		send[1] = 4;
 		send[2] = (byte)(BKNumber/256);
 		send[3] = (byte)(BKNumber%256);
 		SendPacket (send);
+		
+	}
+
+
+	public void ResendData (DatagramPacket receivePacket) throws IOException {
+		System.out.println("Resending data");
+		byte [] send; 
+		int blockNum = RP.getBlockNum();
+
+		byte[] fileData = fileHandler.readFile();
+		int length = fileData.length;
+		blockNumber++;
+		send = new byte [4+ length];
+		send[0] = 0;
+		send[1] = 3;
+		send[2] = (byte)(blockNumber/256);
+		send[3] = (byte)(blockNumber%256);
+		for (int i = 0; i < fileData.length; i++){
+			send[4+i] = fileData[i];
+		}
+		SendPacket(send);
 	}
 
 	/*
@@ -318,7 +351,7 @@ public class Sender {
 	}
 
 	/*
-	 * Print sended packet
+	 * Print sent packet
 	 */
 	public void PrintSender (DatagramPacket sendPacket) {
 		Verbose v = new Verbose();
@@ -333,7 +366,7 @@ public class Sender {
 	}
 
 	/*
-	 * Close the sockeet
+	 * Close the socket
 	 */
 	public void Close (){
 		sendReceiveSocket.close();
@@ -345,9 +378,10 @@ public class Sender {
 	public void start (Client c, int portNum) throws IOException{
 		System.out.println("Normal mode selected");
 		receivePacket = null;
-
+		newPort();
 		this.port = portNum;
-		this.RequestHandler(c.getRequest(), c.getFileName());
+		currentRequest = c.getRequest();
+		this.RequestHandler(currentRequest, c.getFileName());
 	}
 
 }

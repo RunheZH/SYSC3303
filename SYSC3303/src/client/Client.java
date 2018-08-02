@@ -189,6 +189,7 @@ public class Client {
 		while(c.running) {
 			c.menu();
 			c.start(n);	
+			n.Close();
 		}		
 	}
 }
