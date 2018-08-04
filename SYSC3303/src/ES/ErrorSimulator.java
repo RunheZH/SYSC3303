@@ -44,8 +44,7 @@ public class ErrorSimulator {
 					break;
 				case 2: 
 					listener.setErrorType(errorType); 
-					//////////////////
-					//////////////////
+					packetSelection();
 					break;
 				default: 
 					System.out.println("Invalid input, please try again.");
