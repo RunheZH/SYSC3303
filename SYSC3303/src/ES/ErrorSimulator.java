@@ -247,6 +247,8 @@ public class ErrorSimulator {
 			}else {
 				if(errorChoice == 2) {
 					delaySelection();
+				}else if(errorType ==2){
+					errorCodeError();
 				}else {
 					listener.setBlockChoice(blockChoice);
 					listener.confirmChange();
