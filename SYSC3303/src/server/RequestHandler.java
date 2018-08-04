@@ -26,6 +26,7 @@ public class RequestHandler extends Thread{
 	private Client myClient;
 	private String ID, currentRequest;
 	private InetAddress TAddr;
+	private boolean continueListen = true;
 	
 	/*
 	 * Construct handler with packet information
@@ -54,6 +55,15 @@ public class RequestHandler extends Thread{
 	 * */
 	public void run() {
 		handleRequest();
+		while(continueListen) {
+			try {
+				receiveFromClient();
+				if(continueListen == false) return;
+				handleRequest();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	/*
@@ -111,6 +121,7 @@ public class RequestHandler extends Thread{
 			myClient = new Client(myPacket, 1, new FileHandler(this));
 			if(Client.addToClients(myClient) == false) {
 				System.out.println("Invalid request, the client is currenly active.");
+				continueListen = false;
 				return;
 			}
 			currentRequest = "READ";
@@ -119,6 +130,7 @@ public class RequestHandler extends Thread{
 			if(filedata == null) {
 				System.out.println(ID + "Disconnected.");
 				myClient.close();
+				continueListen = false;
 				return;
 			}
 			System.out.println("Loading File...");
@@ -131,7 +143,7 @@ public class RequestHandler extends Thread{
 			System.out.println("ERROR: Previous WRQ/RRQ not finished yet");	
 			System.out.println("ERROR: Ignoring RRQ received");	
 		}
-		receiveFromClient();
+		
 	}
 
 	/*
@@ -147,12 +159,14 @@ public class RequestHandler extends Thread{
 			myClient = new Client(myPacket, 1, new FileHandler(this));
 			if(Client.addToClients(myClient) == false) {
 				System.out.println("Invalid request, the client is currenly active.");
+				continueListen = false;
 				return;
 			}
 			currentRequest = "WRITE";
 			if(myClient.getFileHandler().prepareWrite(filename) == false) {
 				System.out.println(ID + "Disconnected.");
 				myClient.close();
+				continueListen = false;
 				return;
 			}
 			sendACKPacket(myClient.getBlockNum() - 1);
@@ -162,7 +176,6 @@ public class RequestHandler extends Thread{
 			System.out.println("ERROR: Previous WRQ/RRQ not finished yet");	
 			System.out.println("ERROR: Ignoring WRQ received");	
 		}
-		receiveFromClient();
 	}
 	
 	/*
@@ -179,6 +192,7 @@ public class RequestHandler extends Thread{
 				if(myClient.getFileHandler().writeFile(fileData) == false) {
 					System.out.println(ID + "Disconnected.");
 					myClient.close();
+					continueListen = false;
 					return;
 				}
 				myClient.incrementBlockNum();			
@@ -188,6 +202,7 @@ public class RequestHandler extends Thread{
 					System.out.println("Transfer Complete");
 					System.out.println(ID + "Disconnected.");
 					myClient.close();
+					continueListen = false;
 					return;
 				}
 			}else if((myClient.getBlockNum() - 1) == block){
@@ -196,11 +211,11 @@ public class RequestHandler extends Thread{
 			}else{
 				System.out.println("ERROR: Ignoring wrong DATA package received.");
 			}
-			receiveFromClient();
 		}else {
 			System.out.println("ERROR: Unknown TID.");
 			SendErrorPacket(5, "Unknown transfer ID.");
-			System.out.println(ID + "Disconnected.");		
+			System.out.println(ID + "Disconnected.");	
+			continueListen = false;
 		}
 	}
 	
@@ -219,12 +234,14 @@ public class RequestHandler extends Thread{
 					//	End thread
 					System.out.println("Transfer Complete");
 					myClient.close();
+					continueListen = false;
 					return;
 				}else {
 					myClient.incrementBlockNum();
 					byte[] fileData = myClient.getFileHandler().readFile();
 					if(fileData == null) {
 						myClient.close();
+						continueListen = false;
 						return;
 					}
 					if(fileData.length < 512) {
@@ -236,11 +253,11 @@ public class RequestHandler extends Thread{
 			}else{
 				System.out.println("ERROR: Ignoring wrong ACK package received.");
 			}
-			receiveFromClient();
 		}else {
 			System.out.println("ERROR: Unknown TID.");
 			SendErrorPacket(5, "Unknown transfer ID.");
 			System.out.println(ID + "Disconnected.");
+			continueListen = false;
 		}
 	}
 	
@@ -327,13 +344,13 @@ public class RequestHandler extends Thread{
 		try {
 			sendReceiveSocket.receive(myPacket);
 			terminate = 0;
-			handleRequest();
 		} catch (SocketTimeoutException e) {
 			terminate += 1;
 			System.out.println(ID + "Time out " + terminate + ".");
 			if(terminate == TIMEOUTMAX) {
 				System.out.println(ID + "ERROR: No Response From Client, Disconnected.");
 				myClient.close();
+				continueListen = false;
 				return;
 			}
 			if(currentRequest.equals("READ")) {

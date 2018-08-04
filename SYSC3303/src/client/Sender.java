@@ -9,11 +9,12 @@ import java.net.*;
 public class Sender {
 	private Client c;
 	private DatagramSocket sendReceiveSocket;
-	private DatagramPacket receivePacket, sendPacket, rp2;
+	private DatagramPacket receivePacket, sendPacket;
 	private FileHandler fileHandler;
-	private RequestParser RP, PP;
+	private RequestParser RP;
 	private int blockNumber = 0, port, finalBlock, TID, end = 0;
 	private String filename, currentRequest;
+	private boolean continueListen = true;
 	private static final int TIMEOUTMAX = 4;
 
 	public Sender(Client c){
@@ -42,13 +43,11 @@ public class Sender {
 
 		try {
 			sendReceiveSocket.receive(receivePacket);
-			rp2 = receivePacket;
 			TID = receivePacket.getPort();
 	
 	//		System.out.println("type: "+type );
 			end = 0;
 			PrintReceiver(receivePacket);
-			ReceiveHandler(receivePacket);
 		} catch(SocketTimeoutException e) {
 			//e.printStackTrace();
 			//System.exit(1);
@@ -58,6 +57,8 @@ public class Sender {
 			if(end == TIMEOUTMAX) {
 				end = 0;
 				System.out.println("ERROR: No Response From Server, closing transmission.");
+				
+				continueListen = false;
 				return;
 			}
 			if(currentRequest.equals("2") && sendPacket.getData()[1] == 3 ) {
@@ -67,7 +68,7 @@ public class Sender {
 			}else {
 				System.out.println("Waiting...");
 			}
-			Receiver();
+			Receiver ();
 		}	
 	}
 
@@ -80,7 +81,6 @@ public class Sender {
 		if (receivePacket.getPort() != TID) {
 			System.out.println("Unknown TID error");
 			SendErrorPacket(4, "Unknown transfer ID");
-			Receiver();	
 		}else {
 			switch (RP.getType()) {
 			case 3:	DATA(receivePacket);
@@ -110,10 +110,11 @@ public class Sender {
 			}
 			if(length > 516){		
 				System.out.println("Wrong packet received (oversized).");
-				Receiver();
 			}else {
 				if(fileHandler.writeFile(RP.getFileData()) == false) {
 					SendErrorPacket(3, "Disk full or allocation exceeded");
+					fileHandler.close();
+					continueListen = false;
 				}else {
 					send[0] = 0;
 					send[1] = 4;
@@ -121,11 +122,10 @@ public class Sender {
 					send[3] = (byte)(blockNumber%256);
 					SendPacket (send);
 					blockNumber++;	
-					if (length == 516){			
-						Receiver();
-					}else if(length < 516){
+					if(length < 516){
 						System.out.println("Transfer Complete");
 						fileHandler.close();
+						continueListen = false;
 					}
 				}
 			}
@@ -137,13 +137,11 @@ public class Sender {
 				System.out.println("Packet already received (duplicated), Resending ACK packet");
 				ResendACK(blockNumber-1);
 				resend++;
-				Receiver();
-			}else {
-				System.out.println("Resending");
 			}
+			return;
 		}else{
-			System.out.println("Error bk number, lololololololol");		
-		}
+			System.out.println("Error bk number.");	
+		}	
 	}
 
 
@@ -159,6 +157,7 @@ public class Sender {
 			if(finalBlock == blockNum) {
 				System.out.println("Transfer Complete");
 				fileHandler.close();
+				continueListen = false;
 			}else {
 				byte[] fileData = fileHandler.readFile();
 				int length = fileData.length;
@@ -171,17 +170,16 @@ public class Sender {
 				for (int i = 0; i < fileData.length; i++){
 					send[4+i] = fileData[i];
 				}
-				SendPacket(send);
 				if (fileData.length < 512){	
 					finalBlock = blockNumber;
 				}
-				Receiver();
+				SendPacket(send);
 			}
 		}else if (blockNum < blockNumber) {
+			System.out.println("Error, ignoring invalid block received");
 			System.out.println("Duplicate ACK packet received (delayed)");
-			Receiver();
 		}else{
-			System.out.println("Error, Invalid block received");
+			System.out.println("Error, ignoring invalid block received");
 			System.out.println("packet bk number "+blockNum+" VS current bk number "+ blockNumber+"");
 		}	
 	}
@@ -189,13 +187,16 @@ public class Sender {
 	/*
 	 * Deal with received error packet
 	 */
-	public void ERR (){
+	public void ERR () throws IOException{
 		System.out.println("Received Error Packet.");
 		System.out.println("Error code: " + RP.getErrorCode());
 		System.out.println("Error Message: " + RP.getErrorMsg());
+		if(fileHandler != null)
+			fileHandler.close();
+		continueListen = false;
 	}
 
-	//resend ack packet
+	// send ACK packet
 	public void ResendACK (int BKNumber) {
 		byte [] send = new byte [4];
 		send[0] = 0;
@@ -204,26 +205,6 @@ public class Sender {
 		send[3] = (byte)(BKNumber%256);
 		SendPacket (send);
 		
-	}
-
-
-	public void ResendData (DatagramPacket receivePacket) throws IOException {
-		System.out.println("Resending data");
-		byte [] send; 
-		int blockNum = RP.getBlockNum();
-
-		byte[] fileData = fileHandler.readFile();
-		int length = fileData.length;
-		blockNumber++;
-		send = new byte [4+ length];
-		send[0] = 0;
-		send[1] = 3;
-		send[2] = (byte)(blockNumber/256);
-		send[3] = (byte)(blockNumber%256);
-		for (int i = 0; i < fileData.length; i++){
-			send[4+i] = fileData[i];
-		}
-		SendPacket(send);
 	}
 
 	/*
@@ -381,7 +362,12 @@ public class Sender {
 		newPort();
 		this.port = portNum;
 		currentRequest = c.getRequest();
-		this.RequestHandler(currentRequest, c.getFileName());
+		RequestHandler(currentRequest, c.getFileName());
+		while(continueListen) {
+			Receiver();
+			ReceiveHandler(receivePacket);
+		}
+		continueListen = true;
 	}
 
 }
