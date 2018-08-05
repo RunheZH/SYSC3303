@@ -18,9 +18,9 @@ public class ESThread extends Thread{
 	private int serverPort = 69;
 	private RequestParser rp;
 	private int ID;
-	private DatagramSocket errorSocket;
-	private final int errorPort = 24;
-	private final String errorInetAddress = "192.168.0.1";
+	private boolean continueListen = true;
+
+
 
 	public ESThread(int errorType, int errorChoice, int errorPacket, int blockChoice, int delayChoice, DatagramPacket received) {
 		//		byte[] sendData = new byte[1024];
@@ -35,7 +35,7 @@ public class ESThread extends Thread{
 		this.receivedPacket = received;
 		this.clientAddress = receivedPacket.getAddress();
 		this.clientPort = receivedPacket.getPort();
-		//temp
+
 		try {
 			receiveSendSocket = new DatagramSocket();
 		} catch (SocketException e) {
@@ -59,7 +59,11 @@ public class ESThread extends Thread{
 		
 		System.out.println("Packet received:");
 		printPacketInfo(receivedPacket);
-		tryError(receivedPacket);
+		while(continueListen) {
+			tryError(receivedPacket);
+			receive();
+		}
+
 	}
 
 	private void tryError(DatagramPacket receivedPacket){
@@ -70,16 +74,13 @@ public class ESThread extends Thread{
 			if(errorType == 1) {
 				makeTransmissionError(receivedPacket);
 				errorType = 0;
-				receive();
 			}else if(errorType == 2) {
-				makeErrorCodeError(receivedPacket);
-				errorType = 0;
-				receive();
+				////////////////////
+				///////////////////
 			}
-		}else {
-			
-			transferPacket(receivedPacket);
-			receive();
+
+		}else {	
+			transferPacket(receivedPacket);		
 		}
 	}
 
@@ -119,7 +120,7 @@ public class ESThread extends Thread{
 		default: System.out.println("Oops, something is wrong"); break;
 		}
 	}
-
+  
 	public void sendPacket(DatagramPacket sendPacket) {
 
 		try {
@@ -152,12 +153,13 @@ public class ESThread extends Thread{
 			printPacketInfo(receivedPacket);
 		}catch(SocketTimeoutException e1) {
 			System.out.println(ID + ": Timeout, closing thread.");
+			continueListen = false;
+
 			return;
 		}catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		tryError(receivedPacket);
 	}
 
 	
@@ -197,67 +199,6 @@ public class ESThread extends Thread{
 			sendPacket(sendPacket);
 		}
 	}
-	
-	public void makeErrorCodeError(DatagramPacket receivedPacket) {
-		if(errorPacket == 1 || errorPacket == 2) {
-			
-		}else if(errorPacket == 3 || errorPacket == 4) {
-			
-		}else {
-			
-		}
-	}
-	
-	public void transferErrorFivePacket(DatagramPacket receivedPacket, int error) {
-		System.out.println("Passing packet received...");
-		
-		if(error == 1) {
-			try {
-				errorSocket = new DatagramSocket(errorPort);
-			}catch(SocketException se) {
-				se.printStackTrace();
-			}
-		}else {
-			try {
-				errorSocket = new DatagramSocket(receiveSendSocket.getPort(),InetAddress.getByName(errorInetAddress));
-			}catch(UnknownHostException e) {
-				e.printStackTrace();
-			}catch(SocketException se) {
-				se.printStackTrace();
-			}
-		}
-		
-		if(ifClient(receivedPacket)) {
-			try {
-				sendPacket = new DatagramPacket(receivedPacket.getData(), receivedPacket.getLength(), InetAddress.getLocalHost(), this.serverPort);
-			} catch (UnknownHostException e) {
-				e.printStackTrace();
-			}
-
-			try {
-				errorSocket.send(sendPacket);
-				System.out.println("Error Simulator: Packet sent:");
-				printPacketInfo(sendPacket);
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
-		}else {
-			sendPacket = new DatagramPacket(receivedPacket.getData(), receivedPacket.getLength(), this.clientAddress, this.clientPort);
-			try {
-				errorSocket.send(sendPacket);
-				System.out.println("Error Simulator: Packet sent:");
-				printPacketInfo(sendPacket);
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
-		}
-		
-		
-		
-	}
-	
 
 	public boolean ifClient(DatagramPacket receivedPacket) {
 		if(receivedPacket.getPort() == clientPort && receivedPacket.getAddress().equals(clientAddress)) return true;
