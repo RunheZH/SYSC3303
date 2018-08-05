@@ -19,6 +19,9 @@ public class ESThread extends Thread{
 	private RequestParser rp;
 	private int ID;
 	private boolean continueListen = true;
+	private DatagramSocket errorSocket;
+	private int errorPort = 24;
+	private String errorAddress = "192.123.00.0";
 
 
 
@@ -197,6 +200,63 @@ public class ESThread extends Thread{
 		}else {
 			sendPacket = new DatagramPacket(receivedPacket.getData(), receivedPacket.getLength(), this.clientAddress, this.clientPort);
 			sendPacket(sendPacket);
+		}
+	}
+	
+	public void makeErrorCodeError(DatagramPacket receivedPacket) {
+		if(errorPacket == 1 || errorPacket == 2) {
+
+		}else if(errorPacket == 3 || errorPacket == 4) {
+
+		}else {
+
+		}
+	}
+
+public void transferErrorFivePacket(DatagramPacket receivedPacket, int error) {
+		System.out.println("Passing packet received...");
+
+		if(error == 1) {
+			try {
+				errorSocket = new DatagramSocket(errorPort);
+			}catch(SocketException se) {
+				se.printStackTrace();
+			}
+		}else {
+			try {
+				errorSocket = new DatagramSocket(receiveSendSocket.getPort(),InetAddress.getByName(errorAddress));
+			}catch(UnknownHostException e) {
+				e.printStackTrace();
+			}catch(SocketException se) {
+				se.printStackTrace();
+			}
+		}
+
+		if(ifClient(receivedPacket)) {
+			try {
+				sendPacket = new DatagramPacket(receivedPacket.getData(), receivedPacket.getLength(), InetAddress.getLocalHost(), this.serverPort);
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			}
+
+			try {
+				errorSocket.send(sendPacket);
+				System.out.println("Error Simulator: Packet sent:");
+				printPacketInfo(sendPacket);
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+		}else {
+			sendPacket = new DatagramPacket(receivedPacket.getData(), receivedPacket.getLength(), this.clientAddress, this.clientPort);
+			try {
+				errorSocket.send(sendPacket);
+				System.out.println("Error Simulator: Packet sent:");
+				printPacketInfo(sendPacket);
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
 		}
 	}
 
