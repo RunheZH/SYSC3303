@@ -75,11 +75,13 @@ public class ESThread extends Thread{
 		if(ifError(receivedPacket)) {
 			System.out.println("Target packet received, making error...");
 			if(errorType == 1) {
+				System.out.println("Making Transimission error...");
 				makeTransmissionError(receivedPacket);
 				errorType = 0;
 			}else if(errorType == 2) {
-				////////////////////
-				///////////////////
+				System.out.println("Making Error Code error...");
+				makeErrorCodeError(receivedPacket);
+				errorType = 0;
 			}
 
 		}else {	
@@ -204,60 +206,89 @@ public class ESThread extends Thread{
 	}
 	
 	public void makeErrorCodeError(DatagramPacket receivedPacket) {
+		System.out.println("Parsing error code choice...");
 		if(errorPacket == 1 || errorPacket == 2) {
+			if(errorChoice == 1) {
+				modifyMode(receivedPacket);
+				transferPacket(receivedPacket);
+			}else if(errorChoice == 2) {
+				modifyOpcode(receivedPacket);
+				transferPacket(receivedPacket);
+			}else if(errorChoice == 3) {
+				modifyFilename(receivedPacket);
+				transferPacket(receivedPacket);
+			}else if(errorChoice == 4) {
+				modifyPacketSize(receivedPacket);
+				transferPacket(receivedPacket);
+			}else if(errorChoice == 5) {
+				modifyPacketFormat(receivedPacket);
+				transferPacket(receivedPacket);
+			}else if(errorChoice == 6) {
+				transferErrorFivePacket(receivedPacket, 1);
+			}else {
+				transferErrorFivePacket(receivedPacket, 2);
+			}
 
 		}else if(errorPacket == 3 || errorPacket == 4) {
-
+			if(errorChoice == 1) {
+				modifyOpcode(receivedPacket);
+				transferPacket(receivedPacket);
+			}else if(errorChoice == 2) {
+				modifyBlockNum(receivedPacket);
+				transferPacket(receivedPacket);
+			}else if(errorChoice == 3) {
+				modifyPacketSize(receivedPacket);
+				transferPacket(receivedPacket);
+			}else if(errorChoice == 4) {
+				modifyPacketFormat(receivedPacket);
+				transferPacket(receivedPacket);
+			}else if(errorChoice == 5) {
+				transferErrorFivePacket(receivedPacket, 1);
+			}else {
+				transferErrorFivePacket(receivedPacket, 2);
+			}
 		}else {
-
+			////////Error Packet
 		}
 	}
+	
+	public void modifyOpcode(DatagramPacket receivedPacket) {
+		byte[] data = receivedPacket.getData();
+		
+		
+	}
+	
+	public void modifyMode(DatagramPacket receivedPacket) {
+		byte[] data = receivedPacket.getData();
+		
+	}
+	
+	public void modifyFilename(DatagramPacket receivedPacket) {
+		
+	}
+	
+	public void modifyPacketSize(DatagramPacket receivedPacket) {
+		
+	}
+	
+	public void modifyPacketFormat(DatagramPacket receivedPacket) {
+		
+	}
+	
+	public void modifyBlockNum(DatagramPacket receivedPacket) {
+		
+	}
 
-public void transferErrorFivePacket(DatagramPacket receivedPacket, int error) {
+	public void transferErrorFivePacket(DatagramPacket receivedPacket, int error) {
 		System.out.println("Passing packet received...");
 
 		if(error == 1) {
-			try {
-				errorSocket = new DatagramSocket(errorPort);
-			}catch(SocketException se) {
-				se.printStackTrace();
-			}
+			
 		}else {
-			try {
-				errorSocket = new DatagramSocket(receiveSendSocket.getPort(),InetAddress.getByName(errorAddress));
-			}catch(UnknownHostException e) {
-				e.printStackTrace();
-			}catch(SocketException se) {
-				se.printStackTrace();
-			}
+			
 		}
 
-		if(ifClient(receivedPacket)) {
-			try {
-				sendPacket = new DatagramPacket(receivedPacket.getData(), receivedPacket.getLength(), InetAddress.getLocalHost(), this.serverPort);
-			} catch (UnknownHostException e) {
-				e.printStackTrace();
-			}
-
-			try {
-				errorSocket.send(sendPacket);
-				System.out.println("Error Simulator: Packet sent:");
-				printPacketInfo(sendPacket);
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
-		}else {
-			sendPacket = new DatagramPacket(receivedPacket.getData(), receivedPacket.getLength(), this.clientAddress, this.clientPort);
-			try {
-				errorSocket.send(sendPacket);
-				System.out.println("Error Simulator: Packet sent:");
-				printPacketInfo(sendPacket);
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
-		}
+		
 	}
 
 	public boolean ifClient(DatagramPacket receivedPacket) {

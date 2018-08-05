@@ -5,7 +5,7 @@ import java.util.Scanner;
 public class ErrorSimulator {
 	
 	private Scanner scan;
-	private String ec, tc, pc, bc, dc;  
+	private String ec, tc, pc, bc, dc,cc;  
 	private ESListener listener;
 	private int errorType,errorChoice;
 	private int packetChoice, blockChoice, delayChoice;
@@ -89,7 +89,39 @@ public class ErrorSimulator {
 		if(packetChoice == 1 || packetChoice == 2) {
 			System.out.println("---------- Error Code Error ----------");
 			System.out.println("    1. Invalid Mode 		 (Error Code 4)");
-			System.out.println("    2. Invalid Filename 	 (Error Code 4)");
+			System.out.println("    2. Invalid Opcode 		 (Error Code 4)");
+			System.out.println("    3. Invalid Filename 	 (Error Code 4)");
+			System.out.println("    4. Invalid Packet Size   (Error Code 4)");
+			System.out.println("    5. Invalid Packet Format (Error Code 4)");
+			System.out.println("    6. Unknown TID   		 (Error Code 5)");
+			System.out.println("    7. Unknown Address   	 (Error Code 5)");
+			System.out.println("    8. Back to Error main menu");
+			System.out.println(">>>>>>>> input quit to exit this program");
+			
+			ec = scan.next();
+			if(ec.equals("quit")) {
+				stop();
+				return;
+			}
+			
+			try {
+				errorChoice = Integer.valueOf(ec);
+				if(errorChoice < 0 || errorChoice >8) {
+					System.out.println("Invalid input, please try again."); 
+					errorCodeError();
+				}else {		
+					if (errorChoice == 8) return;
+					listener.setErrorChoice(errorChoice);
+					listener.confirmChange();
+				}
+			}catch(NumberFormatException e) {
+				System.out.println("Invalid input, please try again.");
+				errorCodeError();
+			}
+		}else {
+			System.out.println("---------- Error Code Error ----------");
+			System.out.println("    1. Invalid Opcode 		 (Error Code 4)");
+			System.out.println("    2. Invalid Block Number  (Error Code 4)");
 			System.out.println("    3. Invalid Packet Size   (Error Code 4)");
 			System.out.println("    4. Invalid Packet Format (Error Code 4)");
 			System.out.println("    5. Unknown TID   		 (Error Code 5)");
@@ -110,39 +142,6 @@ public class ErrorSimulator {
 					errorCodeError();
 				}else {		
 					if (errorChoice == 7) return;
-					listener.setErrorChoice(errorChoice);
-					listener.confirmChange();
-				}
-			}catch(NumberFormatException e) {
-				System.out.println("Invalid input, please try again.");
-				errorCodeError();
-			}
-		}else {
-			System.out.println("---------- Error Code Error ----------");
-			System.out.println("    1. Invalid Opcode 		 (Error Code 4)");
-			System.out.println("    2. Invalid Mode   		 (Error Code 4)");
-			System.out.println("    3. Invalid Block Number  (Error Code 4)");
-			System.out.println("    4. Invalid Filename 	 (Error Code 4)");
-			System.out.println("    5. Invalid Packet Size   (Error Code 4)");
-			System.out.println("    6. Invalid Packet Format (Error Code 4)");
-			System.out.println("    7. Unknown TID   		 (Error Code 5)");
-			System.out.println("    8. Unknown Address   	 (Error Code 5)");
-			System.out.println("    9. Back to Error main menu");
-			System.out.println(">>>>>>>> input quit to exit this program");
-			
-			ec = scan.next();
-			if(ec.equals("quit")) {
-				stop();
-				return;
-			}
-			
-			try {
-				errorChoice = Integer.valueOf(ec);
-				if(errorChoice < 0 || errorChoice >9) {
-					System.out.println("Invalid input, please try again."); 
-					errorCodeError();
-				}else {		
-					if (errorChoice == 9) return;
 					listener.setErrorChoice(errorChoice);
 					listener.confirmChange();
 				}
@@ -259,9 +258,114 @@ public class ErrorSimulator {
 		} catch (NumberFormatException e) {
 			System.out.println("Invalid input, please try again.");
 			blockSelection();
-		}
-		
+		}	
 	}
+	
+	public void askErrorOpcode() {
+		System.out.println("---------- Please Input a new Opcode ----------");
+		System.out.println("    Enter -1 to go back to Error Menu");
+		System.out.println(">>>>>>>> input quit to exit this program");
+		
+		cc = scan.next();
+		
+		if(cc.equals("quit")) {
+			stop();
+			return;
+		}
+	}
+	
+	public void askErrorMode() {
+		System.out.println("---------- Please Input a new Mode ----------");
+		System.out.println("    Enter -1 to go back to Error Menu");
+		System.out.println(">>>>>>>> input quit to exit this program");
+		
+		cc = scan.next();
+		
+		if(cc.equals("quit")) {
+			stop();
+			return;
+		}
+	}
+	
+	public void askErrorFilename() {
+		System.out.println("---------- Please Input a new Filename ----------");
+		System.out.println("    Enter -1 to go back to Error Menu");
+		System.out.println(">>>>>>>> input quit to exit this program");
+		
+		cc = scan.next();
+		
+		if(cc.equals("quit")) {
+			stop();
+			return;
+		}
+	}
+	
+	public void askInvalidBlkNum() {
+		System.out.println("---------- Please Input a new Block Number ----------");
+		System.out.println("    Enter -1 to go back to Error Menu");
+		System.out.println(">>>>>>>> input quit to exit this program");
+		
+		cc = scan.next();
+		
+		if(cc.equals("quit")) {
+			stop();
+			return;
+		}
+	}
+	
+	public void askInvalidPacketSize() {
+		System.out.println("---------- Please Input a new Packet Size----------");
+		System.out.println("    Enter -1 to go back to Error Menu");
+		System.out.println(">>>>>>>> input quit to exit this program");
+		
+		cc = scan.next();
+		
+		if(cc.equals("quit")) {
+			stop();
+			return;
+		}
+	}
+	
+	public void askInvalidPacketFormat() {
+		System.out.println("---------- Please Input a new Opcode----------");
+		System.out.println("    Enter -1 to go back to Error Menu");
+		System.out.println(">>>>>>>> input quit to exit this program");
+		
+		cc = scan.next();
+		
+		if(cc.equals("quit")) {
+			stop();
+			return;
+		}
+	}
+	
+	public void askInvalidTID() {
+		System.out.println("---------- Please Input a new TID ----------");
+		System.out.println("    Enter -1 to go back to Error Menu");
+		System.out.println(">>>>>>>> input quit to exit this program");
+		
+		cc = scan.next();
+		
+		if(cc.equals("quit")) {
+			stop();
+			return;
+		}
+	}
+	
+	public void askInvalidAddress() {
+		System.out.println("---------- Please Input a new InetAddress ----------");
+		System.out.println("    Enter -1 to go back to Error Menu");
+		System.out.println(">>>>>>>> input quit to exit this program");
+		
+		cc = scan.next();
+		
+		if(cc.equals("quit")) {
+			stop();
+			return;
+		}
+	}
+	
+	
 	
 	public void stop() {
 		listener.quit();
