@@ -85,15 +85,16 @@ public class ErrorSimulator {
 	}
 	
 	public void errorCodeError() {
-		
+
 		if(packetChoice == 1 || packetChoice == 2) {
 			System.out.println("---------- Error Code Error ----------");
 			System.out.println("    1. Invalid Mode 		 (Error Code 4)");
 			System.out.println("    2. Invalid Filename 	 (Error Code 4)");
 			System.out.println("    3. Invalid Packet Size   (Error Code 4)");
 			System.out.println("    4. Invalid Packet Format (Error Code 4)");
-			System.out.println("    5. Unknown Transfer ID   (Error Code 5)");
-			System.out.println("    6. Back to Error main menu");
+			System.out.println("    5. Unknown TID   		 (Error Code 5)");
+			System.out.println("    6. Unknown Address   	 (Error Code 5)");
+			System.out.println("    7. Back to Error main menu");
 			System.out.println(">>>>>>>> input quit to exit this program");
 			
 			ec = scan.next();
@@ -104,11 +105,11 @@ public class ErrorSimulator {
 			
 			try {
 				errorChoice = Integer.valueOf(ec);
-				if(errorChoice < 0 || errorChoice >6) {
+				if(errorChoice < 0 || errorChoice >7) {
 					System.out.println("Invalid input, please try again."); 
 					errorCodeError();
 				}else {		
-					if (errorChoice == 6) return;
+					if (errorChoice == 7) return;
 					listener.setErrorChoice(errorChoice);
 					listener.confirmChange();
 				}
@@ -124,8 +125,9 @@ public class ErrorSimulator {
 			System.out.println("    4. Invalid Filename 	 (Error Code 4)");
 			System.out.println("    5. Invalid Packet Size   (Error Code 4)");
 			System.out.println("    6. Invalid Packet Format (Error Code 4)");
-			System.out.println("    7. Unknown Transfer ID   (Error Code 5)");
-			System.out.println("    8. Back to Error main menu");
+			System.out.println("    7. Unknown TID   		 (Error Code 5)");
+			System.out.println("    8. Unknown Address   	 (Error Code 5)");
+			System.out.println("    9. Back to Error main menu");
 			System.out.println(">>>>>>>> input quit to exit this program");
 			
 			ec = scan.next();
@@ -136,11 +138,11 @@ public class ErrorSimulator {
 			
 			try {
 				errorChoice = Integer.valueOf(ec);
-				if(errorChoice < 0 || errorChoice >8) {
+				if(errorChoice < 0 || errorChoice >9) {
 					System.out.println("Invalid input, please try again."); 
 					errorCodeError();
 				}else {		
-					if (errorChoice == 8) return;
+					if (errorChoice == 9) return;
 					listener.setErrorChoice(errorChoice);
 					listener.confirmChange();
 				}

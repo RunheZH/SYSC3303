@@ -18,6 +18,9 @@ public class ESThread extends Thread{
 	private int serverPort = 69;
 	private RequestParser rp;
 	private int ID;
+	private DatagramSocket errorSocket;
+	private final int errorPort = 24;
+	private final String errorInetAddress = "192.168.0.1";
 
 	public ESThread(int errorType, int errorChoice, int errorPacket, int blockChoice, int delayChoice, DatagramPacket received) {
 		//		byte[] sendData = new byte[1024];
@@ -69,8 +72,9 @@ public class ESThread extends Thread{
 				errorType = 0;
 				receive();
 			}else if(errorType == 2) {
-				////////////////////
-				///////////////////
+				makeErrorCodeError(receivedPacket);
+				errorType = 0;
+				receive();
 			}
 		}else {
 			
@@ -193,6 +197,67 @@ public class ESThread extends Thread{
 			sendPacket(sendPacket);
 		}
 	}
+	
+	public void makeErrorCodeError(DatagramPacket receivedPacket) {
+		if(errorPacket == 1 || errorPacket == 2) {
+			
+		}else if(errorPacket == 3 || errorPacket == 4) {
+			
+		}else {
+			
+		}
+	}
+	
+	public void transferErrorFivePacket(DatagramPacket receivedPacket, int error) {
+		System.out.println("Passing packet received...");
+		
+		if(error == 1) {
+			try {
+				errorSocket = new DatagramSocket(errorPort);
+			}catch(SocketException se) {
+				se.printStackTrace();
+			}
+		}else {
+			try {
+				errorSocket = new DatagramSocket(receiveSendSocket.getPort(),InetAddress.getByName(errorInetAddress));
+			}catch(UnknownHostException e) {
+				e.printStackTrace();
+			}catch(SocketException se) {
+				se.printStackTrace();
+			}
+		}
+		
+		if(ifClient(receivedPacket)) {
+			try {
+				sendPacket = new DatagramPacket(receivedPacket.getData(), receivedPacket.getLength(), InetAddress.getLocalHost(), this.serverPort);
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			}
+
+			try {
+				errorSocket.send(sendPacket);
+				System.out.println("Error Simulator: Packet sent:");
+				printPacketInfo(sendPacket);
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+		}else {
+			sendPacket = new DatagramPacket(receivedPacket.getData(), receivedPacket.getLength(), this.clientAddress, this.clientPort);
+			try {
+				errorSocket.send(sendPacket);
+				System.out.println("Error Simulator: Packet sent:");
+				printPacketInfo(sendPacket);
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+		}
+		
+		
+		
+	}
+	
 
 	public boolean ifClient(DatagramPacket receivedPacket) {
 		if(receivedPacket.getPort() == clientPort && receivedPacket.getAddress().equals(clientAddress)) return true;
