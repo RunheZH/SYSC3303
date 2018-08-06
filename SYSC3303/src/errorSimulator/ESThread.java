@@ -22,6 +22,7 @@ public class ESThread extends Thread{
 	public ESThread(int errorType, int errorChoice, int errorPacket, int blockChoice, int delayChoice, 
 			        int errorOp, String errorMode, String errorFilename, int errorBlkN, int errorPS,
 			        int errorPF, int errorTID, String errorAddr, DatagramPacket received) {
+
 		//		byte[] sendData = new byte[1024];
 
 		//		sendPacket = new DatagramPacket(sendData, sendData.length);

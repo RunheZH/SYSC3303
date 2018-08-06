@@ -8,10 +8,11 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Client {
 	
-	private static ArrayList<Client> activeClients = new ArrayList<>();
+	private static List<Client> activeClients = new ArrayList<>();
 	
 	private InetAddress myAddress;
 	private int myPort, myBlockNum;
@@ -26,21 +27,55 @@ public class Client {
 		myFH = FH;
 	}
 	
-	public synchronized static boolean addToClients(Client c) {
-		if(findSameClient(c) == false) {
-			activeClients.add(c);
-			return true;
-		}else {
-			return false;
+	/*
+	 * Static method to add a client instance to the client list
+	 * @param 	c	client to add.
+	 * @return		operation result
+	 * */
+	public static boolean addToClients(Client c) {
+		synchronized(activeClients){
+			if(findSameClient(c) == false) {
+				activeClients.add(c);
+				return true;
+			}else {
+				return false;
+			}
+		}	
+	}
+	
+	/*
+	 * Static method to remove a client instance from the client list
+	 * @param 	c	client to remove.
+	 * */
+	public static void removeFromClients(Client c) {
+		synchronized(activeClients){
+			activeClients.remove(c);
+			activeClients.notifyAll();
 		}
-		
 	}
 	
-	public synchronized void removeFromClients() {
-		activeClients.remove(this);
-		notifyAll();
+	/*
+	 * Static method to check if all connections have finished when shut down server
+	 * The method will wait if some connections are still running
+	 * */
+	public static void closeAll() {
+		synchronized(activeClients){
+			while(activeClients.size() != 0) {
+				try {
+					activeClients.wait();
+				}catch(InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			System.out.println("All connections finished.");
+		}
 	}
 	
+	/*
+	 * Static method to check if a client that has same information already exists
+	 * @param	client	client instance to check
+	 * @return			result
+	 * */
 	public static boolean findSameClient(Client client) {
 		for(Client c : activeClients) {
 			if(c.getAddress().equals(client.getAddress()) && 
@@ -49,36 +84,57 @@ public class Client {
 		return false;
 	}
 	
+	/*
+	 * Static method that returns number of active connections
+	 * @param	client	client instance to check
+	 * @return			result
+	 * */
 	public static int getClientsSize() {
 		return activeClients.size();
 	}
 	
 	/*
-	 * Public information getters
+	 * @return		address of client
 	 * */
 	public InetAddress getAddress() {
 		return myAddress;
 	}
 	
+	/*
+	 * @return		port number of client
+	 * */
 	public int getPort() {
 		return myPort;
 	}
 	
+	/*
+	 * @return		current block number of client
+	 * */
 	public int getBlockNum() {
 		return myBlockNum;
 	}
 	
+	/*
+	 * Method to increase current block number
+	 * */
 	public void incrementBlockNum() {
 		myBlockNum++;
 	}
 	
+	/*
+	 * @return		FileHandler
+	 * */
 	public FileHandler getFileHandler() {
 		return myFH;
 	}
 	
-	//	Cleaner
+	/*
+	 * Method to clean up current client information
+	 * 	Close I/O stream
+	 * 	Remove from client list
+	 * */
 	public void close() throws IOException {
 		myFH.close();
-		removeFromClients();
+		removeFromClients(this);
 	}
 }
