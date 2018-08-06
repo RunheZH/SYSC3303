@@ -312,24 +312,47 @@ public class ESThread extends Thread{
 	}
 	
 	public DatagramPacket modifyPacketSize(DatagramPacket receivedPacket, int packetSize) {
-		byte[] sendData = receivedPacket.getData();
+		byte[] sendData = new byte[packetSize];
+		byte[] data = receivedPacket.getData();
 		
-		
+		for(int i = 0; i < data.length; i++) sendData[i] = data[i];
 		DatagramPacket packet = new DatagramPacket(sendData, sendData.length, receivedPacket.getAddress(),receivedPacket.getPort());
 		return packet;
 	}
 	
 	public DatagramPacket modifyPacketFormat(DatagramPacket receivedPacket, int packetFormat) {
-		byte[] sendData = receivedPacket.getData();
+		byte[] filename = rp.getFilename().getBytes();
+		byte[] mode = rp.getMode().getBytes();
+		byte[] sendData = new byte[4+filename.length+mode.length];
 		
+		sendData[0] = 0;
+		sendData[1] = (byte)rp.getType();
+		
+		for(int i = 0; i < filename.length; i++) {
+			sendData[2+i] = filename[i];
+		}
+		
+		sendData[2+filename.length] = (byte)packetFormat;
+		
+		for(int i = 0; i < mode.length;i++) {
+			sendData[3+filename.length + i] = mode[i];
+		}
+		
+		sendData[3+filename.length+mode.length] = (byte) packetFormat;
 		
 		DatagramPacket packet = new DatagramPacket(sendData, sendData.length, receivedPacket.getAddress(),receivedPacket.getPort());
 		return packet;
 	}
 	
 	public DatagramPacket modifyBlockNum(DatagramPacket receivedPacket, int blkNum) {
-		byte[] sendData = receivedPacket.getData();
+		byte[] sendData = new byte[receivedPacket.getLength()];
 		
+		for(int i = 0; i < receivedPacket.getLength(); i++) {
+			sendData[i]= receivedPacket.getData()[i];
+		}
+		
+		sendData[2] = (byte) (blkNum / 256);
+		sendData[3] = (byte) (blkNum % 256);
 		
 		DatagramPacket packet = new DatagramPacket(sendData, sendData.length, receivedPacket.getAddress(),receivedPacket.getPort());
 		return packet;
