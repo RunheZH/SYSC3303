@@ -45,7 +45,11 @@ public class ESListener extends Thread{
 			e.printStackTrace();
 			System.exit(1);
 		}
-		Thread normalThread = new ESThread(errorType, errorChoice, packetChoice,blockChoice,delayChoice,receivedPacket);
+		
+		
+		Thread normalThread = new ESThread(errorType, errorChoice, packetChoice,blockChoice,delayChoice,errorOpcode,
+											errorMode, errorFilename,errorBlkNum, errorPacketSize, errorPacketFormat,
+											errorTID, errorAddress,receivedPacket);
 		normalThread.start();
 	}
 	

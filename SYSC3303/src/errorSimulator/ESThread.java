@@ -8,11 +8,9 @@ public class ESThread extends Thread{
 	private DatagramPacket receivedPacket, sendPacket;
 	private DatagramSocket receiveSendSocket;
 
-	private int errorType;
-	private int errorChoice;
-	private int errorPacket;
-	private int blockChoice;
-	private int delayChoice;
+	private int errorType, errorChoice, errorPacket, blockChoice, delayChoice;
+	private int errorOpcode, errorBlkNum, errorPacketSize, errorPacketFormat, errorTID;
+	private String errorMode, errorFilename, errorAddress;
 	private InetAddress clientAddress;
 	private int clientPort;
 	private int serverPort = 69;
@@ -20,12 +18,10 @@ public class ESThread extends Thread{
 	private int ID;
 	private boolean continueListen = true;
 	private DatagramSocket errorSocket;
-	private int errorPort = 24;
-	private String errorAddress = "192.123.00.0";
-
-
-
-	public ESThread(int errorType, int errorChoice, int errorPacket, int blockChoice, int delayChoice, DatagramPacket received) {
+	
+	public ESThread(int errorType, int errorChoice, int errorPacket, int blockChoice, int delayChoice, 
+			        int errorOp, String errorMode, String errorFilename, int errorBlkN, int errorPS,
+			        int errorPF, int errorTID, String errorAddr, DatagramPacket received) {
 		//		byte[] sendData = new byte[1024];
 
 		//		sendPacket = new DatagramPacket(sendData, sendData.length);
@@ -35,6 +31,14 @@ public class ESThread extends Thread{
 		this.errorPacket = errorPacket;
 		this.blockChoice = blockChoice;
 		this.delayChoice = delayChoice;
+		this.errorOpcode = errorOp;
+		this.errorMode = errorMode;
+		this.errorFilename = errorFilename;
+		this.errorBlkNum = errorBlkN;
+		this.errorPacketSize = errorPS;
+		this.errorPacketFormat = errorPF;
+		this.errorTID = errorTID;
+		this.errorAddress = errorAddr;
 		this.receivedPacket = received;
 		this.clientAddress = receivedPacket.getAddress();
 		this.clientPort = receivedPacket.getPort();
@@ -209,19 +213,17 @@ public class ESThread extends Thread{
 		System.out.println("Parsing error code choice...");
 		if(errorPacket == 1 || errorPacket == 2) {
 			if(errorChoice == 1) {
-				modifyMode(receivedPacket);
-				transferPacket(receivedPacket);
+				System.out.println("Modify Mode...");
+				transferPacket(modifyMode(receivedPacket, errorMode));
 			}else if(errorChoice == 2) {
-				modifyOpcode(receivedPacket);
-				transferPacket(receivedPacket);
+				transferPacket(modifyOpcode(receivedPacket, errorOpcode));
 			}else if(errorChoice == 3) {
-				modifyFilename(receivedPacket);
-				transferPacket(receivedPacket);
+				transferPacket(modifyFilename(receivedPacket, errorFilename));
 			}else if(errorChoice == 4) {
-				modifyPacketSize(receivedPacket);
+				modifyPacketSize(receivedPacket, errorPacketSize);
 				transferPacket(receivedPacket);
 			}else if(errorChoice == 5) {
-				modifyPacketFormat(receivedPacket);
+				modifyPacketFormat(receivedPacket, errorPacketFormat);
 				transferPacket(receivedPacket);
 			}else if(errorChoice == 6) {
 				transferErrorFivePacket(receivedPacket, 1);
@@ -231,20 +233,17 @@ public class ESThread extends Thread{
 
 		}else if(errorPacket == 3 || errorPacket == 4) {
 			if(errorChoice == 1) {
-				modifyOpcode(receivedPacket);
+				modifyOpcode(receivedPacket, errorOpcode);
 				transferPacket(receivedPacket);
 			}else if(errorChoice == 2) {
-				modifyBlockNum(receivedPacket);
+				modifyBlockNum(receivedPacket, errorBlkNum);
 				transferPacket(receivedPacket);
 			}else if(errorChoice == 3) {
-				modifyPacketSize(receivedPacket);
+				modifyPacketSize(receivedPacket, errorPacketSize);
 				transferPacket(receivedPacket);
 			}else if(errorChoice == 4) {
-				modifyPacketFormat(receivedPacket);
-				transferPacket(receivedPacket);
-			}else if(errorChoice == 5) {
 				transferErrorFivePacket(receivedPacket, 1);
-			}else {
+			}else{
 				transferErrorFivePacket(receivedPacket, 2);
 			}
 		}else {
@@ -252,31 +251,88 @@ public class ESThread extends Thread{
 		}
 	}
 	
-	public void modifyOpcode(DatagramPacket receivedPacket) {
-		byte[] data = receivedPacket.getData();
+	public DatagramPacket modifyOpcode(DatagramPacket receivedPacket, int opcode) {
+		byte[] sendData = new byte[receivedPacket.getLength()];
+		for(int i = 0; i < receivedPacket.getLength(); i++) {
+			sendData[i] = receivedPacket.getData()[i];
+		}
 		
+		sendData[1] = (byte) opcode;
 		
+		DatagramPacket packet = new DatagramPacket(sendData, sendData.length, receivedPacket.getAddress(),receivedPacket.getPort());
+		return packet;
 	}
 	
-	public void modifyMode(DatagramPacket receivedPacket) {
-		byte[] data = receivedPacket.getData();
+	public DatagramPacket modifyMode(DatagramPacket receivedPacket, String mode) {
+		byte[] errorMode = mode.getBytes();
+		byte[] sendData = new byte[4 + rp.getFilename().getBytes().length + errorMode.length];
+		System.out.println(rp.getFilename().getBytes().length);
+		System.out.println(errorMode.length);
 		
+		sendData[0] = 0;
+		sendData[1] = (byte)rp.getType();
+		
+		for(int i = 0; i < rp.getFilename().getBytes().length; i++) {
+			sendData[2+i] = rp.getFilename().getBytes()[i];
+		}
+		
+		sendData[2+rp.getFilename().getBytes().length] = 0;    //0 1 2 3 4 5 6 7 8 9 10
+		
+		for(int i = 0; i < errorMode.length; i++) {
+			sendData[3+rp.getFilename().getBytes().length + i] = errorMode[i]; 
+		}
+		
+		sendData[3 +rp.getFilename().getBytes().length + errorMode.length] = 0;
+		
+		DatagramPacket packet = new DatagramPacket(sendData, sendData.length, receivedPacket.getAddress(),receivedPacket.getPort());
+		return packet;
 	}
 	
-	public void modifyFilename(DatagramPacket receivedPacket) {
+	public DatagramPacket modifyFilename(DatagramPacket receivedPacket, String filename) {
+		byte[] fileName = filename.getBytes();
+		byte[] sendData = new byte[4 + fileName.length + rp.getMode().getBytes().length];
 		
+		sendData[0] = 0;
+		sendData[1] = (byte)rp.getType();
+		
+		for(int i = 0; i < fileName.length; i++) {
+			sendData[2+i] = fileName[i];
+		}
+		
+		sendData[2+fileName.length] = 0;
+		
+		for(int i = 0; i < rp.getMode().getBytes().length; i++) {
+			sendData[3+fileName.length + i] = rp.getMode().getBytes()[i]; 
+		}
+		
+		sendData[3 + fileName.length + rp.getMode().getBytes().length] = 0;
+		
+		DatagramPacket packet = new DatagramPacket(sendData, sendData.length, receivedPacket.getAddress(),receivedPacket.getPort());
+		return packet;
 	}
 	
-	public void modifyPacketSize(DatagramPacket receivedPacket) {
+	public DatagramPacket modifyPacketSize(DatagramPacket receivedPacket, int packetSize) {
+		byte[] sendData = receivedPacket.getData();
 		
+		
+		DatagramPacket packet = new DatagramPacket(sendData, sendData.length, receivedPacket.getAddress(),receivedPacket.getPort());
+		return packet;
 	}
 	
-	public void modifyPacketFormat(DatagramPacket receivedPacket) {
+	public DatagramPacket modifyPacketFormat(DatagramPacket receivedPacket, int packetFormat) {
+		byte[] sendData = receivedPacket.getData();
 		
+		
+		DatagramPacket packet = new DatagramPacket(sendData, sendData.length, receivedPacket.getAddress(),receivedPacket.getPort());
+		return packet;
 	}
 	
-	public void modifyBlockNum(DatagramPacket receivedPacket) {
+	public DatagramPacket modifyBlockNum(DatagramPacket receivedPacket, int blkNum) {
+		byte[] sendData = receivedPacket.getData();
 		
+		
+		DatagramPacket packet = new DatagramPacket(sendData, sendData.length, receivedPacket.getAddress(),receivedPacket.getPort());
+		return packet;
 	}
 
 	public void transferErrorFivePacket(DatagramPacket receivedPacket, int error) {
@@ -287,8 +343,6 @@ public class ESThread extends Thread{
 		}else {
 			
 		}
-
-		
 	}
 
 	public boolean ifClient(DatagramPacket receivedPacket) {
