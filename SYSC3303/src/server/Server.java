@@ -43,7 +43,13 @@ public class Server{
 	 * */
 	public synchronized void stopServer() {
 		myListener.stopRunning();  // Stop listener
-		Client.closeAll();
+		while(Client.getClientsSize() != 0) {
+			try {
+				wait();	
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}	
 	}
 	
 	//	Server starts here
