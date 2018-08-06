@@ -220,11 +220,9 @@ public class ESThread extends Thread{
 			}else if(errorChoice == 3) {
 				transferPacket(modifyFilename(receivedPacket, errorFilename));
 			}else if(errorChoice == 4) {
-				modifyPacketSize(receivedPacket, errorPacketSize);
-				transferPacket(receivedPacket);
+				transferPacket(modifyPacketSize(receivedPacket, errorPacketSize));
 			}else if(errorChoice == 5) {
-				modifyPacketFormat(receivedPacket, errorPacketFormat);
-				transferPacket(receivedPacket);
+				transferPacket(modifyPacketFormat(receivedPacket, errorPacketFormat));
 			}else if(errorChoice == 6) {
 				transferErrorFivePacket(receivedPacket, 1);
 			}else {
@@ -233,14 +231,11 @@ public class ESThread extends Thread{
 
 		}else if(errorPacket == 3 || errorPacket == 4) {
 			if(errorChoice == 1) {
-				modifyOpcode(receivedPacket, errorOpcode);
-				transferPacket(receivedPacket);
+				transferPacket(modifyOpcode(receivedPacket, errorOpcode));
 			}else if(errorChoice == 2) {
-				modifyBlockNum(receivedPacket, errorBlkNum);
-				transferPacket(receivedPacket);
+				transferPacket(modifyBlockNum(receivedPacket, errorBlkNum));
 			}else if(errorChoice == 3) {
-				modifyPacketSize(receivedPacket, errorPacketSize);
-				transferPacket(receivedPacket);
+				transferPacket(modifyPacketSize(receivedPacket, errorPacketSize));
 			}else if(errorChoice == 4) {
 				transferErrorFivePacket(receivedPacket, 1);
 			}else{
