@@ -5,6 +5,7 @@ package client;
 
 import java.io.*;
 import java.net.*;
+import java.util.Scanner;
 
 public class Sender {
 	private Client c;
@@ -35,14 +36,17 @@ public class Sender {
 	 * Receive packet
 	 */
 	public void Receiver () throws IOException{
-		System.out.println("Client: waiting a packet...");
+		String re;
+		boolean resend = true;
+		if (c.getFig() == "1"){
+			System.out.println("Client: waiting a packet...");
+		}
 		byte data[] = new byte[1024];
 		receivePacket = new DatagramPacket(data, data.length);
 		sendReceiveSocket.setSoTimeout(3000);
 
 		try {
 			sendReceiveSocket.receive(receivePacket);
-
 			if (receivePacket.getPort() == -1){
 				return;
 			}
@@ -52,12 +56,24 @@ public class Sender {
 			end++;
 			System.out.println("Timeout "+ end + " time(s)");
 
-			if(end == TIMEOUTMAX) {
+			if (end > 0){
+				Scanner sc = new Scanner(System.in);
+				System.out.println("Do you want to Resend? <y/n>");
+				re = sc.next();
+				
+				if (re.equals("n")){
+					resend = false;
+				}
+				
+			}
+			
+			if(end == TIMEOUTMAX || resend == false) {
 				end = 0;
 				System.out.println("ERROR: No Response From Server, closing transmission.");
 				continueListen = false;
 				return;
 			}
+		
 			if (sendPacket.getData()[1] == 1 ){
 				System.out.println("Resending RRQ");
 				//	System.out.println(RequestParser.parseBlockNum(sendPacket.getData()[2], sendPacket.getData()[3]));
@@ -73,7 +89,7 @@ public class Sender {
 				if(currentRequest.equals("2") && sendPacket.getData()[1] == 3 ) {
 					System.out.println("Resending...");
 					System.out.println(RequestParser.parseBlockNum(sendPacket.getData()[2], sendPacket.getData()[3]));
-					sendReceiveSocket.send(sendPacket);
+					sendReceiveSocket.send(sendPacket);	
 				}else {
 					System.out.println("Waiting...");
 				}
@@ -89,6 +105,7 @@ public class Sender {
 		RP.parseRequest(receivePacket.getData(), receivePacket.getLength());
 
 		if(RP.ifCorrect()){
+	//		System.out.println("asdadasdasdsa");
 			if(TID == -1)
 				TID = receivePacket.getPort();
 			if (receivePacket.getPort() != TID && receivePacket.getPort() != -1) {
@@ -105,7 +122,7 @@ public class Sender {
 				}
 			}
 		}else{
-			if(TID != -1){
+			if(receivePacket.getPort() != -1){
 				System.out.println("Error. Wrong packet type.");
 				SendErrorPacket(4, "Illegal TFTP Operation");
 			}
@@ -122,7 +139,11 @@ public class Sender {
 		byte [] send = new byte [4];
 		int blockNum = RP.getBlockNum();
 		int length = receivePacket.getLength();
-
+		
+		if (RP.getType() == 3 && blockNumber == 0){
+			blockNumber = 1;
+		}
+		
 		if (blockNum == blockNumber){
 			if(blockNum == 1) {
 				fileHandler = new FileHandler(c);
@@ -186,7 +207,10 @@ public class Sender {
 	 * Deal with received ACK packet
 	 */
 	public void ACK (DatagramPacket receivePacket) throws IOException{
-		System.out.println("Received ACK packet.");
+		if (c.getFig() == "1"){
+			System.out.println("Received ACK packet.");
+
+		}		
 		byte [] send; 
 		int blockNum = RP.getBlockNum();
 
@@ -249,7 +273,7 @@ public class Sender {
 	 *	Method to send error packet with code and message
 	 * 	In: error code, error message
 	 * */
-	public void SendErrorPacket(int errorCode, String msg){
+	public void SendErrorPacket(int errorCode, String msg) throws IOException{
 		System.out.println("Sending error packet, code " + errorCode);
 
 		byte[] sendData = new byte[5 + msg.length()];
@@ -274,6 +298,14 @@ public class Sender {
 			e.printStackTrace();
 			System.exit(1);
 		}
+		
+		/*
+		if (errorCode != 5){
+			continueListen = false;
+			fileHandler.close();
+			return;
+		}*/
+		
 	}
 
 	/*
@@ -291,12 +323,8 @@ public class Sender {
 					receivePacket.getAddress(), receivePacket.getPort());
 		}
 
-		/*
-		try {
-			Thread.sleep(500);
-		}catch(InterruptedException e){}
-		 */
-		//		Send packet
+		
+		
 		try {
 			// displaySend(sendPacket);
 			sendReceiveSocket.send(sendPacket);
