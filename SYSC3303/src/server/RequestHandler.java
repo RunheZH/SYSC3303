@@ -145,7 +145,7 @@ public class RequestHandler extends Thread{
 		}else {
 			//	ERROR WRQ RRQ not finished yet
 			System.out.println(ID + "ERROR: Previous WRQ/RRQ not finished yet");	
-			System.out.println(ID + "Ignoring RRQ received");	
+			System.out.println(ID + "Ignoring duplicate RRQ received");	
 		}
 		
 	}
@@ -179,7 +179,7 @@ public class RequestHandler extends Thread{
 		}else {
 			//	ERROR WRQ RRQ not finished yet
 			System.out.println(ID + "ERROR: Previous WRQ/RRQ not finished yet");	
-			System.out.println(ID + "Ignoring WRQ received");	
+			System.out.println(ID + "Ignoring duplicate WRQ received");	
 		}
 	}
 	
